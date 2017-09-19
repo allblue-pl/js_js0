@@ -17,6 +17,9 @@ const abTypes = new class
     args(args, errors = [])
     {
         for (let i = 0; i < args.length; i++) {
+            if (i + 1 >= arguments.length)
+                break;
+
             if (!this.var(args[i], arguments[i + 1]))
                 return false;
         }
@@ -44,8 +47,11 @@ const abTypes = new class
     {
         this.args(arguments, 'object', 'function');
 
-        if (prop_class.PropName in object) {
-            if (object[prop_class.PropName] instanceof prop_class)
+        if (!('Property' in prop_class))
+            throw new Error(`\`${prop_class}\` is not a \`Property\`.`);
+
+        if (prop_class.Property in object) {
+            if (object[prop_class.Property] instanceof prop_class)
                 return true;
         }
 
@@ -56,7 +62,7 @@ const abTypes = new class
     {
         if (!this.implements(object, prop_class)) {
             throw new TypeError(`Object of type \`${object.constructor.name}\`` +
-                    ` doesn't implement property.`);
+                    ` doesn't implement property \`${prop_class.name}\`.`);
         }
     }
 
@@ -65,7 +71,7 @@ const abTypes = new class
         this.args(arguments, 'object', 'function');
 
         if (!('Property' in prop_class))
-            throw new Error(`\`prop_class\` is not a \`Property\`.`);
+            throw new Error(`\`${prop_class}\` is not a \`Property\`.`);
 
         let prop_args = [ null ];
         for (let i = 2; i < arguments.length; i++)
