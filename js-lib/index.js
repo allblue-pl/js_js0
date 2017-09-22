@@ -1,7 +1,7 @@
 'use strict';
 
 
-const abTypes = new class
+class abTypes_Class
 {
 
     get Presets() {
@@ -14,33 +14,26 @@ const abTypes = new class
 
     }
 
-    args(args, errors = [])
+    args(args, ...types)
     {
-        for (let i = 0; i < args.length; i++) {
-            if (i + 1 >= arguments.length)
-                break;
-
-            if (!this.var(args[i], arguments[i + 1]))
+        for (let i = 0; i < types.length; i++) {
+            if (!this.var(args[i], types[i]))
                 return false;
         }
 
         return true;
     }
 
-    argsE(args)
+    argsE(args, ...types)
     {
-        for (let i = 0; i < args.length; i++) {
-            if (i + 1 >= arguments.length)
-                return;
-
-            this.varE(args[i], arguments[i + 1]);
-        }
+        for (let i = 0; i < types.length; i++)
+            this.varE(args[i], types[i]);
     }
 
     assert(value, message = '')
     {
         if (!value)
-            throw new abTypes.AssertionError(message);
+            throw new this.AssertionError(message);
     }
 
     implements(object, prop_class)
@@ -88,6 +81,18 @@ const abTypes = new class
         if (value === null)
             return true;
 
+        /* Special types. */
+        if (value_type === this.Default) {
+            if (value === undefined)
+                return true;
+        } else if (value_type === this.RawObject) {
+            if (Object.getPrototypeOf(value) !== Object.prototype)
+                return false;
+
+            return true;
+        }
+        /* Special tyles. */
+
         let typeof_value_type = typeof value_type;
 
         /* Basic types. */
@@ -118,17 +123,17 @@ const abTypes = new class
         }
 
         if (typeof_value_type === 'function') {
-            /* Property */
-            if ('PropName' in value_type) {
-                if (!this.implements(value, value_type)) {
-
-                    errors.push(`Variable does not implement property
-                            \`${value_type.constructor}\`.`);
-                    return false;
-                }
-
-                return true;
-            }
+            // /* Property */
+            // if ('Property' in value_type) {
+            //     if (!this.implements(value, value_type)) {
+            //
+            //         errors.push(`Variable does not implement property
+            //                 \`${value_type.constructor}\`.`);
+            //         return false;
+            //     }
+            //
+            //     return true;
+            // }
 
             /* Class */
             if (!(value instanceof value_type)) {
@@ -150,23 +155,23 @@ const abTypes = new class
             return;
 
         console.error('Error:', errors);
-        throw new abTypes.TypeError('Wrong variable type.');
+        throw new this.TypeError('Wrong variable type.');
     }
 
     virtual(object = null)
     {
         if (object === null)
-            throw new abTypes.NotImplementedError();
+            throw new this.NotImplementedError();
 
-        throw new abTypes.NotImplementedError(`Method not implemented in:` +
-                ` \`${object.main.constructor.name}\`.`);
+        throw new this.NotImplementedError(`Method not implemented in:` +
+                ` \`${object.constructor.name}\`.`);
     }
 
-}();
-module.exports = abTypes;
+}
+module.exports = new abTypes_Class();
 
 
-Object.defineProperties(abTypes, {
+Object.defineProperties(abTypes_Class.prototype, {
 
     AssertionError: { value:
     class abTypes_AssertionError extends Error
@@ -177,6 +182,7 @@ Object.defineProperties(abTypes, {
         }
 
     }},
+
 
     BasicTypes: { value:
     new Set([
@@ -190,6 +196,11 @@ Object.defineProperties(abTypes, {
         'object'
     ])},
 
+
+    Default: { value:
+    Symbol('abTypes_Default') },
+
+
     NotImplementedError: { value:
     class abTypes_NotImplementedError extends Error
     {
@@ -202,6 +213,10 @@ Object.defineProperties(abTypes, {
     }},
 
 
+    RawObject: { value:
+    Symbol('abTypes_RawObject') },
+
+
     TypeError: { value:
     class abTypes_TypeError extends Error
     {
@@ -210,10 +225,10 @@ Object.defineProperties(abTypes, {
         {
             super(...args);
 
-            let stack = this.stack;
-            let stack_array = stack.split('\n');
-            stack_array.splice(1, 3);
-            this.stack = stack_array.join('\n');
+            // let stack = this.stack;
+            // let stack_array = stack.split('\n');
+            // stack_array.splice(1, 3);
+            // this.stack = stack_array.join('\n');
         }
 
     }},
