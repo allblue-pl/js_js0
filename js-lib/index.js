@@ -4,8 +4,8 @@
 class abTypes_Class
 {
 
-    get Presets() {
-        return require('./Presets');
+    get List() {
+        return require('./List');
     }
 
 
@@ -38,17 +38,9 @@ class abTypes_Class
 
     implements(object, prop_class)
     {
-        this.args(arguments, 'object', 'function');
+        this.argsE(arguments, 'object', abTypes.PropClass);
 
-        if (!('Property' in prop_class))
-            throw new Error(`\`${prop_class}\` is not a \`Property\`.`);
-
-        if (prop_class.Property in object) {
-            if (object[prop_class.Property] instanceof prop_class)
-                return true;
-        }
-
-        return false;
+        return this.var(object, this.Prop(prop_class));
     }
 
     implementsE(object, prop_class)
@@ -71,6 +63,7 @@ class abTypes_Class
             prop_args.push(arguments[i]);
 
         let prop = new (Function.prototype.bind.apply(prop_class, prop_args))();
+        Object.defineProperty(prop, '__main', { value: main_object });
         Object.defineProperty(main_object, prop_class.Property, {
             value: prop
         });
@@ -85,9 +78,33 @@ class abTypes_Class
         if (value_type === this.Default) {
             if (value === undefined)
                 return true;
-        } else if (value_type === this.RawObject) {
-            if (Object.getPrototypeOf(value) !== Object.prototype)
+        } if (value_type === this.Iterable)
+            return typeof value[Symbol.iterator] === 'function';
+         else if (value_type === this.RawObject)
+            return Object.getPrototypeOf(value) === Object.prototype;
+        else if (value_type === this.PropClass) {
+            if (typeof value !== 'function') {
+                errors.push(`\`${value}\` is not a \`Property\`.`);
                 return false;
+            }
+
+            if (!('Property' in value)) {
+                errors.push(`\`${value}\` is not a \`Property\`.`);
+                return false;
+            }
+
+            return true;
+        } else if (value_type instanceof this.PropType) {
+            let prop_class = value_type._propClass;
+            if (!(prop_class.Property in value)) {
+                errors.push(`\`${value}\` does not implement \`${prop_class}\`.`);
+                return false;
+            }
+
+            if (!(value[prop_class.Property] instanceof prop_class)) {
+                errors.push(`\`${value}\` does not implement \`${prop_class}\`.`);
+                return false;
+            }
 
             return true;
         }
@@ -168,21 +185,9 @@ class abTypes_Class
     }
 
 }
-module.exports = new abTypes_Class();
-
+const abTypes = abTypes_Class.prototype;
 
 Object.defineProperties(abTypes_Class.prototype, {
-
-    AssertionError: { value:
-    class abTypes_AssertionError extends Error
-    {
-        constructor(...args)
-        {
-            super(...args);
-        }
-
-    }},
-
 
     BasicTypes: { value:
     new Set([
@@ -197,9 +202,16 @@ Object.defineProperties(abTypes_Class.prototype, {
     ])},
 
 
-    Default: { value:
-    Symbol('abTypes_Default') },
+    /* Errors */
+    AssertionError: { value:
+    class abTypes_AssertionError extends Error
+    {
+        constructor(...args)
+        {
+            super(...args);
+        }
 
+    }},
 
     NotImplementedError: { value:
     class abTypes_NotImplementedError extends Error
@@ -211,10 +223,6 @@ Object.defineProperties(abTypes_Class.prototype, {
         }
 
     }},
-
-
-    RawObject: { value:
-    Symbol('abTypes_RawObject') },
 
 
     TypeError: { value:
@@ -232,5 +240,36 @@ Object.defineProperties(abTypes_Class.prototype, {
         }
 
     }},
+    /* / Errors */
+
+
+    /* Special Types */
+    Default: { value: Symbol('abTypes_Default'), },
+    Iterable: { value: Symbol('abTypes_Iterable'), },
+    RawObject: { value: Symbol('abTypes_RawObject'), },
+    Prop: { value: (property) => {
+            return new abTypes.PropType(property); }
+    },
+    PropClass: { value: Symbol('abTypes_PropClass'), },
+    /* / Special Types */
+
+
+    PropType: { value:
+    class abTypes_PropType
+    {
+
+        constructor(prop_class)
+        {
+            abTypes.argsE(arguments, abTypes.PropClass);
+
+            Object.defineProperties(this, {
+                _propClass: { value: prop_class, },
+            });
+        }
+
+    }},
 
 });
+
+
+module.exports = new abTypes_Class();
