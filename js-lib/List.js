@@ -1,5 +1,7 @@
 'use strict';
 
+const js0 = require('./index');
+
 
 class List
 {
@@ -8,12 +10,27 @@ class List
         return this._values.length;
     }
 
-    constructor()
+    constructor(iterable = null)
     {
+        js0.argsE(arguments, [ js0.Iterable, js0.Default ]);
+
         Object.defineProperties(this, {
             _keys: { value: [], },
             _values: { value: [], },
         });
+
+        if (iterable !== null) {
+            for (let item of iterable) {
+                if (item instanceof Array) {
+                    if (item.length === 2) {
+                        this.set(item[0], item[1]);
+                        continue;
+                    }
+                }
+
+                this.add(item);
+            }
+        }
     }
 
     [Symbol.iterator]()
@@ -21,10 +38,28 @@ class List
         return new List.Iterator(this);
     }
 
+    add(value)
+    {
+        let index = 0;
+        while(this._keys.includes(index))
+            index++;
+
+        this.set(index, value);
+    }
+
+    addAt(index, value)
+    {
+
+    }
+
     delete(key)
     {
         let index = this._getIndexE(key);
+        this.deleteAt(index);
+    }
 
+    deleteAt(index)
+    {
         this._keys.splice(index, 1);
         this._values.splice(index, 1);
     }
@@ -54,11 +89,21 @@ class List
         return this._values.indexOf(value);
     }
 
+    push(value)
+    {
+        let index = 0;
+    }
+
     set(key, value)
     {
         let index = this._keys.indexOf(key);
+        this.setAt(index, key, value);
+    }
+
+    setAt(index, key, value)
+    {
         if (index === -1) {
-            this._keys.push(key)
+            this._keys.push(key);
             this._values.push(value);
         } else
             this._values[index] = value;
@@ -100,7 +145,7 @@ Object.defineProperties(List, {
             return {
                 value: [ key_item.value, this._list.get(key_item.value), ],
                 done: false,
-            }
+            };
         }
 
     }},

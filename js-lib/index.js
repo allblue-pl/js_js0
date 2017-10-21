@@ -1,7 +1,7 @@
 'use strict';
 
 
-class abTypes_Class
+class js0_Class
 {
 
     get List() {
@@ -16,18 +16,18 @@ class abTypes_Class
 
     args(args, ...types)
     {
+        for (let i = 0; i < types.length; i++)
+            this.typeE(args[i], types[i]);
+    }
+
+    argsC(args, ...types)
+    {
         for (let i = 0; i < types.length; i++) {
-            if (!this.var(args[i], types[i]))
+            if (!this.type(args[i], types[i]))
                 return false;
         }
 
         return true;
-    }
-
-    argsE(args, ...types)
-    {
-        for (let i = 0; i < types.length; i++)
-            this.varE(args[i], types[i]);
     }
 
     assert(value, message = '')
@@ -36,53 +36,83 @@ class abTypes_Class
             throw new this.AssertionError(message);
     }
 
-    implements(object, prop_class)
+    prop(main_object, prop_class, prop_args = [])
     {
-        this.argsE(arguments, 'object', abTypes.PropClass);
+        this.argsE(arguments, 'object', 'function', [ Array, this.Default ]);
 
-        return this.var(object, this.Prop(prop_class));
-    }
-
-    implementsE(object, prop_class)
-    {
-        if (!this.implements(object, prop_class)) {
-            throw new TypeError(`Object of type \`${object.constructor.name}\`` +
-                    ` doesn't implement property \`${prop_class.name}\`.`);
+        if (!('Property' in prop_class)) {
+            throw new Error(`\`${prop_class}\` is not a \`Property\` ` +
+                    `(no \`Property\` in object prototype).`);
         }
-    }
+        if (typeof prop_class.Property !== 'string') {
+            throw new Error(`\`${prop_class}\` is not a \`Property\` ` +
+                    `(\`Property\` is not a string).`);
+        }
 
-    prop(main_object, prop_class)
-    {
-        this.args(arguments, 'object', 'function');
-
-        if (!('Property' in prop_class))
-            throw new Error(`\`${prop_class}\` is not a \`Property\`.`);
-
-        let prop_args = [ null ];
-        for (let i = 2; i < arguments.length; i++)
-            prop_args.push(arguments[i]);
-
+        prop_args.splice(0, 0, null);
         let prop = new (Function.prototype.bind.apply(prop_class, prop_args))();
-        Object.defineProperty(prop, '__main', { value: main_object });
         Object.defineProperty(main_object, prop_class.Property, {
             value: prop
         });
     }
 
-    var(value, value_type, errors = [])
+    rtn(value_type)
     {
-        if (value === null)
+        return (value) => {
+            this.typeE(value, value_type);
+            return value;
+        };
+    }
+
+    type(value, value_type, errors = [])
+    {
+        if (value_type === null)
             return true;
 
-        /* Special types. */
+        /* Special Types */
         if (value_type === this.Default) {
             if (value === undefined)
                 return true;
-        } if (value_type === this.Iterable)
+        } else if (value_type === this.Iterable) {
+            errors.push(`\`${value}\` is not \`Iterable\`.`);
+
+            if (typeof value !== 'object')
+                return false;
             return typeof value[Symbol.iterator] === 'function';
-         else if (value_type === this.RawObject)
+        } else if (value_type === this.RawObject)
             return Object.getPrototypeOf(value) === Object.prototype;
-        else if (value_type === this.PropClass) {
+        else if (value_type === this.NotNull) {
+            if (value === null) {
+                errors.push(`\`${value}\` cannot be \`null\`.`);
+                return false;
+            }
+
+            return true;
+        } else if (value_type === this.Null) {
+            if (value === null)
+                return true;
+        } else if (value_type instanceof this.Prop_Type) {
+            let prop_class = value_type._propClass;
+            if (typeof value !== 'object') {
+                errors.push(`\`${value}\` does not implement \`${prop_class}\` ` +
+                        ` (not an object).`);
+                return false;
+            }
+
+            if (!(prop_class.Property in value)) {
+                errors.push(`\`${value}\` does not implement \`${prop_class}\` ` +
+                        ` (property not in object).`);
+                return false;
+            }
+
+            if (!(value[prop_class.Property] instanceof prop_class)) {
+                errors.push(`\`${value}\` does not implement \`${prop_class}\`. ` +
+                        ` (wrong property type).`);
+                return false;
+            }
+
+            return true;
+        } else if (value_type === this.PropClass) {
             if (typeof value !== 'function') {
                 errors.push(`\`${value}\` is not a \`Property\`.`);
                 return false;
@@ -94,31 +124,38 @@ class abTypes_Class
             }
 
             return true;
-        } else if (value_type instanceof this.PropType) {
-            let prop_class = value_type._propClass;
-            if (!(prop_class.Property in value)) {
-                errors.push(`\`${value}\` does not implement \`${prop_class}\`.`);
-                return false;
-            }
-
-            if (!(value[prop_class.Property] instanceof prop_class)) {
-                errors.push(`\`${value}\` does not implement \`${prop_class}\`.`);
-                return false;
-            }
-
-            return true;
         }
-        /* Special tyles. */
+        /* / Special Types */
 
         let typeof_value_type = typeof value_type;
 
-        /* Basic types. */
+        /* Basic Types */
         if (typeof_value_type === 'string') {
-            if (typeof value !== value_type) {
-                let real_value_type = typeof value;
+            let result = true;
+            if (this.Types_Basic.has(value_type)) {
+                result = typeof value === value_type;
+            } else if (this.Types_Extended.has(value_type)) {
+                switch(value_type) {
+                    case 'bool':
+                        result = typeof_value_type === 'boolean';
+                    case 'int':
+                        result = Number.isInteger(value);
+                        break;
+                    case 'finite':
+                        result = Number.isFinite(value);
+                        break;
+                    case 'nan':
+                        result = Number.isNaN(value);
+                        break;
+                }
+            } else {
+                errors.push(`Unknown \type \`${value_type}\`.`);
+                return false;
+            }
 
-                errors.push(`Variable \`${value}\` of type \`${real_value_type}\` should be` +
-                        ` of type \`${value_type}\`.`);
+            if (!result) {
+                errors.push(`Variable \`${value}\` of type \`${typeof_value_type}\`` +
+                    ` should be of type \`${value_type}\`.`);
                 return false;
             }
 
@@ -128,8 +165,17 @@ class abTypes_Class
         if (typeof_value_type === 'object') {
             /* Multiple Types */
             if (value_type instanceof Array) {
+                if (value === null) {
+                    for (let i = 0; i < value_type.length; i++) {
+                        if (value_type[i] === this.NotNull) {
+                            errors.push(`\`${value}\` cannot be \`null\`.`);
+                            return false;
+                        }
+                    }
+                }
+
                 for (let i = 0; i < value_type.length; i++) {
-                    if (this.var(value, value_type[i], errors))
+                    if (this.type(value, value_type[i], errors))
                         return true;
                 }
 
@@ -165,10 +211,10 @@ class abTypes_Class
         throw new Error(`Unknown \`value_type\`: ${typeof_value_type}`);
     }
 
-    varE(value, value_type)
+    typeE(value, value_type)
     {
         let errors = [];
-        if (this.var(value, value_type, errors))
+        if (this.type(value, value_type, errors))
             return;
 
         console.error('Error:', errors);
@@ -185,26 +231,13 @@ class abTypes_Class
     }
 
 }
-const abTypes = abTypes_Class.prototype;
+const js0 = js0_Class.prototype;
 
-Object.defineProperties(abTypes_Class.prototype, {
-
-    BasicTypes: { value:
-    new Set([
-        'undefined',
-        // 'object', /* null */
-        'boolean',
-        'number',
-        'string',
-        'symbol',
-        'function',
-        'object'
-    ])},
-
+Object.defineProperties(js0_Class.prototype, {
 
     /* Errors */
     AssertionError: { value:
-    class abTypes_AssertionError extends Error
+    class js0_AssertionError extends Error
     {
         constructor(...args)
         {
@@ -214,7 +247,7 @@ Object.defineProperties(abTypes_Class.prototype, {
     }},
 
     NotImplementedError: { value:
-    class abTypes_NotImplementedError extends Error
+    class js0_NotImplementedError extends Error
     {
 
         constructor(...args)
@@ -226,7 +259,7 @@ Object.defineProperties(abTypes_Class.prototype, {
 
 
     TypeError: { value:
-    class abTypes_TypeError extends Error
+    class js0_TypeError extends Error
     {
 
         constructor(...args)
@@ -242,25 +275,71 @@ Object.defineProperties(abTypes_Class.prototype, {
     }},
     /* / Errors */
 
+    /* Types */
+    Types_Basic: { value:
+    new Set([
+        'undefined',
+        // 'object', /* null */
+        'boolean',
+        'number',
+        'string',
+        'symbol',
+        'function',
+        'object'
+    ])},
 
-    /* Special Types */
-    Default: { value: Symbol('abTypes_Default'), },
-    Iterable: { value: Symbol('abTypes_Iterable'), },
-    RawObject: { value: Symbol('abTypes_RawObject'), },
+    Types_Extended: { value:
+    new Set([
+        'bool',
+        'finite',
+        'int',
+        'nan'
+    ])},
+
+    /* Types Special */
+    Default: { value: Symbol('js0_Default'), },
+    Iterable: { value: Symbol('js0_Iterable'), },
+    NotNull: { value: Symbol('js0_NotNull'), },
+    Null: { value: Symbol('js0_Null'), },
     Prop: { value: (property) => {
-            return new abTypes.PropType(property); }
+        return new js0.Prop_Type(property); }
     },
-    PropClass: { value: Symbol('abTypes_PropClass'), },
-    /* / Special Types */
+    PropClass: { value: Symbol('js0_PropClass'), },
+    RawObject: { value: Symbol('js0_RawObject'), },
 
+    And_Type: { value:
+    class js0_And_Type
+    {
+        constructor(value_types)
+        {
+            js0.argsE(arguments, js0.PropClass);
 
-    PropType: { value:
-    class abTypes_PropType
+            Object.defineProperties(this, {
+                _valueTypes: { value: value_types, },
+            });
+        }
+    }},
+
+    // Or_Type: { value:
+    // class js0_Or_Type
+    // {
+    //     constructor(prop_class)
+    //     {
+    //         js0.argsE(arguments, js0.PropClass);
+    //
+    //         Object.defineProperties(this, {
+    //             _propClass: { value: prop_class, },
+    //         });
+    //     }
+    // }},
+
+    Prop_Type: { value:
+    class js0_Prop_Type
     {
 
         constructor(prop_class)
         {
-            abTypes.argsE(arguments, abTypes.PropClass);
+            js0.argsE(arguments, js0.PropClass);
 
             Object.defineProperties(this, {
                 _propClass: { value: prop_class, },
@@ -268,8 +347,9 @@ Object.defineProperties(abTypes_Class.prototype, {
         }
 
     }},
+    /* / Types */
 
 });
 
 
-module.exports = new abTypes_Class();
+module.exports = new js0_Class();
