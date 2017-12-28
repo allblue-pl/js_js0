@@ -12,7 +12,7 @@ class List
 
     constructor(iterable = null)
     {
-        js0.argsE(arguments, [ js0.Iterable, js0.Default ]);
+        js0.args(arguments, [ js0.Iterable, js0.Default ]);
 
         Object.defineProperties(this, {
             _keys: { value: [], },
@@ -82,6 +82,11 @@ class List
     has(key)
     {
         return this._keys.includes(key);
+    }
+
+    includes(value)
+    {
+        return this._values.includes(value);
     }
 
     indexOf(value)
