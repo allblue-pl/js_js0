@@ -14,7 +14,7 @@ Basic functionalities:
 
 ### Validation Methods
 
- - `js0.var(value, value_type, [ errors ])`
+ - `js0.type(value, value_type, [ errors ])`
    - Returns `true` / `false` whether `value` meets `value_type` conditions.
  - `js0.varE(value, value_type)`
    - Throws an `Error` when `value` does not meet `value_type` conditions.
@@ -39,21 +39,21 @@ Basic types are equivalents of `v1 typeof === '[BasicType]'`.
 Examples:
 ```js
 /* Basic Types */
-js0.var(undefined, 'undefined'); // true
+js0.type(undefined, 'undefined'); // true
 //
-js0.var(true, 'boolean'); // true
-js0.var(123, 'number'); // true
-js0.var('This is string', 'string'); // true
-js0.var(Symbol('test'), 'symbol'); // true
-js0.var({}, 'object'); // true
+js0.type(true, 'boolean'); // true
+js0.type(123, 'number'); // true
+js0.type('This is string', 'string'); // true
+js0.type(Symbol('test'), 'symbol'); // true
+js0.type({}, 'object'); // true
 
 /* All types are nullable by default. */
-js0.var(null, 'boolean'); // true
-js0.var(null, 'number'); // true
+js0.type(null, 'boolean'); // true
+js0.type(null, 'number'); // true
 
 /* Either type is represented by array. */
-js0.var(false, [ 'boolean', 'string' ]); // true
-js0.var('Hello there.', [ 'boolean', 'string' ]); // true
+js0.type(false, [ 'boolean', 'string' ]); // true
+js0.type('Hello there.', [ 'boolean', 'string' ]); // true
 ```
 
 
