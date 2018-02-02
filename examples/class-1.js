@@ -7,18 +7,19 @@ class Class1
 {
 
     f1(a, b, c = null)
-    {
+    { 
         js0.args(arguments, 'string', 'number', [ 'object', js0.Default ]);
+        let rtn = js0.rtn('number');
 
         console.log(a, b === null);
         b++;
 
-        return js0.rtn('number')(b);
+        return rtn(b);
     }
 
     f2(a, b)
-    {
-        js0.args(arguments, 'number', 'number');
+    { 
+        js0.args(arguments, 'number', 'number');        
         let rtn = js0.rtn('number');
 
         if (a > b)

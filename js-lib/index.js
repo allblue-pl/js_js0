@@ -16,8 +16,13 @@ class js0_Class
 
     args(args, ...types)
     {
-        for (let i = 0; i < types.length; i++)
-            this.typeE(args[i], types[i]);
+        for (let i = 0; i < types.length; i++) {
+            let errors = [];
+            if (!this.type(args[i], types[i], errors)) {
+                console.error(`Error: Argument ${i} -> `, errors);
+                throw new this.TypeError('Wrong argument type.');
+            }
+        }
     }
 
     argsC(args, ...types)
@@ -154,7 +159,8 @@ class js0_Class
             }
 
             if (!result) {
-                errors.push(`Variable \`${value}\` of type \`${typeof_value_type}\`` +
+                let typeof_value = typeof value;
+                errors.push(`Variable \`${value}\` of type \`${typeof_value}\`` +
                     ` should be of type \`${value_type}\`.`);
                 return false;
             }

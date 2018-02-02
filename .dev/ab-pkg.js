@@ -12,7 +12,7 @@ abPackage.exec([
         npm: 'js0',
         bower: 'js0',
 
-        gitUri: 'https://github.com/allblue-pl-dev/dev_node_ab-package',
+        gitUri: 'https://github.com/allblue-pl/js_js0',
         description: 'Lightweight, support package that adds some useful' +
                 ' functionalities to javascript language without forcing' +
                 ' particular convention and without a need of transpiling.',

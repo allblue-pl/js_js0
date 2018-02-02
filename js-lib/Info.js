@@ -1,31 +1,31 @@
-'use strict';
+// 'use strict';
 
-let js0 = require('./index');
+// let js0 = require('.');
 
 
-class Info
-{
+// class Info
+// {
 
-    construct(class_object)
-    {
-        this._object = class_object;
+//     construct(class_object)
+//     {
+//         this._object = class_object;
 
-        this._abstractClassInterfaces = [];
+//         this._abstractClassInterfaces = [];
 
-        this._implemented = [];
-    }
+//         this._implemented = [];
+//     }
 
-    abstract(class_object, interface_class)
-    {
-        js0.args(arguments, 'object', js0.Interface);
+//     abstract(class_object, interface_class)
+//     {
+//         js0.args(arguments, 'object', js0.Interface);
 
-        this._abstractClassInterfaces.push(interface_class);
-    }
+//         this._abstractClassInterfaces.push(interface_class);
+//     }
 
-    implements(class_objects)
-    {
+//     implements(class_objects)
+//     {
 
-    }
+//     }
 
-}
-module.exports = Info;
+// }
+// module.exports = Info;

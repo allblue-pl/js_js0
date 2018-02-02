@@ -1,6 +1,6 @@
 'use strict';
 
-const js0 = require('./index');
+const js0 = require('.');
 
 
 class List
