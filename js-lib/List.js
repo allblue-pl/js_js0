@@ -10,14 +10,13 @@ class List
         return this._values.length;
     }
 
+
     constructor(iterable = null)
     {
         js0.args(arguments, [ js0.Iterable, js0.Default ]);
 
-        Object.defineProperties(this, {
-            _keys: { value: [], },
-            _values: { value: [], },
-        });
+        this._keys = [];
+        this._values = [];
 
         if (iterable !== null) {
             for (let item of iterable) {
@@ -38,13 +37,28 @@ class List
         return new List.Iterator(this);
     }
 
-    add(value)
+    add(...values)
     {
         let index = 0;
-        while(this._keys.includes(index))
-            index++;
+        for (let value of values) {
+            while(this._keys.includes(index))
+                index++;
 
-        this.set(index, value);
+            this.set(index, value);
+        }
+    }
+
+    addAll(values)
+    {
+        js0.args(arguments, js0.Iterable);
+
+        let index = 0;
+        for (let value of values) {
+            while(this._keys.includes(index))
+                index++;
+
+            this.set(index, value);
+        }
     }
 
     addAt(index, value)
@@ -79,6 +93,16 @@ class List
         return this._values[index];
     }
 
+    getKeys()
+    {
+        return this._keys.slice();
+    }
+
+    getValues()
+    {
+        return this._values.slice();
+    }
+
     has(key)
     {
         return this._keys.includes(key);
@@ -94,9 +118,17 @@ class List
         return this._values.indexOf(value);
     }
 
-    push(value)
+    keys()
     {
-        let index = 0;
+        return this._keys.slice();
+    }
+
+    remove(value)
+    {
+        for (let i = this.size - 1; i >= 0; i--) {
+            if (this.getAt(i) === value)
+                this.deleteAt(i);
+        }     
     }
 
     set(key, value)
@@ -112,6 +144,32 @@ class List
             this._values.push(value);
         } else
             this._values[index] = value;
+    }
+
+    slice()
+    {
+
+    }
+
+    sort(compareFn)
+    {
+        let newKeys = this._keys.slice();
+        newKeys.sort((aKey, bKey) => {
+            return compareFn({ key: aKey, value: this.get(aKey) },
+                    { key: bKey, value: this.get(bKey) });
+        });
+
+        let newValues = [];
+        for (let i = 0; i < this.size; i++)
+            newValues.push(this.get(newKeys[i]));
+
+        this._keys = newKeys;
+        this._newValues = newValues;
+    }
+
+    values()
+    {
+        return this._values.slice();
     }
 
 
@@ -142,13 +200,13 @@ Object.defineProperties(List, {
 
         next()
         {
-            let key_item = this._iterator.next();
+            let keyItem = this._iterator.next();
 
-            if (key_item.done)
+            if (keyItem.done)
                 return { value: undefined, done: true, };
 
             return {
-                value: [ key_item.value, this._list.get(key_item.value), ],
+                value: [ keyItem.value, this._list.get(keyItem.value), ],
                 done: false,
             };
         }

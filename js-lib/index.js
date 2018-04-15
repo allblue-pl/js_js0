@@ -41,83 +41,97 @@ class js0_Class
             throw new this.AssertionError(message);
     }
 
-    prop(main_object, prop_class, prop_args = [])
-    {
-        this.argsE(arguments, 'object', 'function', [ Array, this.Default ]);
+    // implement(mainObject, propClass, ...propArgs)
+    // {
+    //     this.prop(mainObject, propClass, ...propArgs);
+    // }
 
-        if (!('Property' in prop_class)) {
-            throw new Error(`\`${prop_class}\` is not a \`Property\` ` +
+    // implements(object, propClass)
+    // {
+    //     return this.type(object, this.Prop(propClass));
+    // }
+
+    prop(mainObject, propClass, ...propArgs)
+    {
+        this.args(arguments, 'object', 'function');
+
+        if (!('Property' in propClass)) {
+            throw new Error(`\`${propClass}\` is not a \`Property\` ` +
                     `(no \`Property\` in object prototype).`);
         }
-        if (typeof prop_class.Property !== 'string') {
-            throw new Error(`\`${prop_class}\` is not a \`Property\` ` +
+        if (typeof propClass.Property !== 'string') {
+            throw new Error(`\`${propClass}\` is not a \`Property\` ` +
                     `(\`Property\` is not a string).`);
         }
 
-        prop_args.splice(0, 0, null);
-        let prop = new (Function.prototype.bind.apply(prop_class, prop_args))();
-        Object.defineProperty(main_object, prop_class.Property, {
+        propArgs.splice(0, 0, null);
+        let prop = new (Function.prototype.bind.apply(propClass, propArgs))();
+        Object.defineProperty(mainObject, propClass.Property, {
             value: prop
         });
     }
 
-    rtn(value_type)
+    rtn(valueType)
     {
         return (value) => {
-            this.typeE(value, value_type);
+            this.typeE(value, valueType);
             return value;
         };
     }
 
-    type(value, value_type, errors = [])
+    type(value, valueType, errors = [])
     {
-        if (value_type === null)
+        if (valueType === null)
             return true;
 
         /* Special Types */
-        if (value_type === this.Default) {
+        if (valueType === this.Default) {
             if (value === undefined)
                 return true;
-        } else if (value_type === this.Iterable) {
+
+            return false;
+        } else if (valueType === this.Iterable) {
             errors.push(`\`${value}\` is not \`Iterable\`.`);
 
             if (typeof value !== 'object')
                 return false;
             return typeof value[Symbol.iterator] === 'function';
-        } else if (value_type === this.RawObject)
+        } else if (valueType === this.RawObject)
             return Object.getPrototypeOf(value) === Object.prototype;
-        else if (value_type === this.NotNull) {
+        else if (valueType === this.NotNull) {
             if (value === null) {
                 errors.push(`\`${value}\` cannot be \`null\`.`);
                 return false;
             }
 
             return true;
-        } else if (value_type === this.Null) {
+        } else if (valueType === this.Null) {
             if (value === null)
                 return true;
-        } else if (value_type instanceof this.Prop_Type) {
-            let prop_class = value_type._propClass;
+
+            return false;
+        } else if (valueType instanceof this.Prop_Type) {
+            let propClass = valueType._propClass;
             if (typeof value !== 'object') {
-                errors.push(`\`${value}\` does not implement \`${prop_class}\` ` +
+                errors.push(`\`${value}\` does not implement \`${propClass}\` ` +
                         ` (not an object).`);
                 return false;
             }
 
-            if (!(prop_class.Property in value)) {
-                errors.push(`\`${value}\` does not implement \`${prop_class}\` ` +
+            if (!(propClass.Property in value)) {
+                errors.push(`\`${value}\` does not implement \`${propClass}\` ` +
                         ` (property not in object).`);
                 return false;
             }
 
-            if (!(value[prop_class.Property] instanceof prop_class)) {
-                errors.push(`\`${value}\` does not implement \`${prop_class}\`. ` +
+            if (!(value[propClass.Property] instanceof propClass)) {
+                errors.push(`\`${value}\` does not implement \`${propClass}\`. ` +
                         ` (wrong property type).`);
                 return false;
             }
 
             return true;
-        } else if (value_type === this.PropClass) {
+        } else if (valueType === this.PropClass) {
             if (typeof value !== 'function') {
                 errors.push(`\`${value}\` is not a \`Property\`.`);
                 return false;
@@ -132,17 +146,17 @@ class js0_Class
         }
         /* / Special Types */
 
-        let typeof_value_type = typeof value_type;
+        let typeofValueType = typeof valueType;
 
         /* Basic Types */
-        if (typeof_value_type === 'string') {
+        if (typeofValueType === 'string') {
             let result = true;
-            if (this.Types_Basic.has(value_type)) {
-                result = typeof value === value_type;
-            } else if (this.Types_Extended.has(value_type)) {
-                switch(value_type) {
+            if (this.Types_Basic.has(valueType)) {
+                result = typeof value === valueType;
+            } else if (this.Types_Extended.has(valueType)) {
+                switch(valueType) {
                     case 'bool':
-                        result = typeof_value_type === 'boolean';
+                        result = typeofValueType === 'boolean';
                     case 'int':
                         result = Number.isInteger(value);
                         break;
@@ -154,34 +168,34 @@ class js0_Class
                         break;
                 }
             } else {
-                errors.push(`Unknown \type \`${value_type}\`.`);
+                errors.push(`Unknown \type \`${valueType}\`.`);
                 return false;
             }
 
             if (!result) {
                 let typeof_value = typeof value;
                 errors.push(`Variable \`${value}\` of type \`${typeof_value}\`` +
-                    ` should be of type \`${value_type}\`.`);
+                    ` should be of type \`${valueType}\`.`);
                 return false;
             }
 
             return true;
         }
 
-        if (typeof_value_type === 'object') {
+        if (typeofValueType === 'object') {
             /* Multiple Types */
-            if (value_type instanceof Array) {
+            if (valueType instanceof Array) {
                 if (value === null) {
-                    for (let i = 0; i < value_type.length; i++) {
-                        if (value_type[i] === this.NotNull) {
+                    for (let i = 0; i < valueType.length; i++) {
+                        if (valueType[i] === this.NotNull) {
                             errors.push(`\`${value}\` cannot be \`null\`.`);
                             return false;
                         }
                     }
                 }
 
-                for (let i = 0; i < value_type.length; i++) {
-                    if (this.type(value, value_type[i], errors))
+                for (let i = 0; i < valueType.length; i++) {
+                    if (this.type(value, valueType[i], errors))
                         return true;
                 }
 
@@ -191,13 +205,13 @@ class js0_Class
             return true;
         }
 
-        if (typeof_value_type === 'function') {
+        if (typeofValueType === 'function') {
             // /* Property */
-            // if ('Property' in value_type) {
-            //     if (!this.implements(value, value_type)) {
+            // if ('Property' in valueType) {
+            //     if (!this.implements(value, valueType)) {
             //
             //         errors.push(`Variable does not implement property
-            //                 \`${value_type.constructor}\`.`);
+            //                 \`${valueType.constructor}\`.`);
             //         return false;
             //     }
             //
@@ -205,22 +219,22 @@ class js0_Class
             // }
 
             /* Class */
-            if (!(value instanceof value_type)) {
+            if (!(value instanceof valueType)) {
                 errors.push(`Variable \`${value}\` is not  an instance of` +
-                        ` \`${value_type.name}\`.`);
+                        ` \`${valueType.name}\`.`);
                 return false;
             }
 
             return true;
         }
 
-        throw new Error(`Unknown \`value_type\`: ${typeof_value_type}`);
+        throw new Error(`Unknown \`valueType\`: ${typeofValueType}`);
     }
 
-    typeE(value, value_type)
+    typeE(value, valueType)
     {
         let errors = [];
-        if (this.type(value, value_type, errors))
+        if (this.type(value, valueType, errors))
             return;
 
         console.error('Error:', errors);
@@ -316,12 +330,12 @@ Object.defineProperties(js0_Class.prototype, {
     And_Type: { value:
     class js0_And_Type
     {
-        constructor(value_types)
+        constructor(valueTypes)
         {
-            js0.argsE(arguments, js0.PropClass);
+            js0.args(arguments, js0.PropClass);
 
             Object.defineProperties(this, {
-                _valueTypes: { value: value_types, },
+                _valueTypes: { value: valueTypes, },
             });
         }
     }},
@@ -329,12 +343,12 @@ Object.defineProperties(js0_Class.prototype, {
     // Or_Type: { value:
     // class js0_Or_Type
     // {
-    //     constructor(prop_class)
+    //     constructor(propClass)
     //     {
     //         js0.argsE(arguments, js0.PropClass);
     //
     //         Object.defineProperties(this, {
-    //             _propClass: { value: prop_class, },
+    //             _propClass: { value: propClass, },
     //         });
     //     }
     // }},
@@ -343,12 +357,12 @@ Object.defineProperties(js0_Class.prototype, {
     class js0_Prop_Type
     {
 
-        constructor(prop_class)
+        constructor(propClass)
         {
-            js0.argsE(arguments, js0.PropClass);
+            js0.args(arguments, js0.PropClass);
 
             Object.defineProperties(this, {
-                _propClass: { value: prop_class, },
+                _propClass: { value: propClass, },
             });
         }
 
