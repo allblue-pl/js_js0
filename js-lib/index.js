@@ -90,6 +90,11 @@ class js0_Class
                 return true;
 
             return false;
+        } else if (valueType === this.Default_Type) {
+            if (value === undefined)
+                return true;
+
+            return false;
         } else if (valueType === this.Iterable) {
             errors.push(`\`${value}\` is not \`Iterable\`.`);
 
@@ -110,6 +115,67 @@ class js0_Class
                 return true;
 
             return false;
+        } else if (valueType instanceof this.Preset_Type) {
+            if (typeof value !== 'object') {
+                errors.push('Preset must be an object.');
+                return false;
+            }
+
+            let valid = true;
+            
+            for (let key in value) {
+                if (!(key in valueType.presets)) {
+                    errors.push(`Unknown key \`${key}\`.`);
+                    valid = false;
+                }
+            }
+
+            for (let key in valueType.presets) {
+                let newErrors = [];
+                
+                if (typeof value[key] === 'undefined') {
+                    if (valueType.presets[key] instanceof Array) {
+                        for (let propValueType of valueType.presets[key]) {
+                            if (propValueType instanceof this.Default_Type)
+                                value[key] = propValueType.defaultValue;
+                        }
+                    }
+                } 
+
+                if (this.type(value[key], valueType.presets[key], newErrors))
+                    continue;
+
+                for (let newError of newErrors)
+                    errors.push(`${key} -> ${newError}`);
+
+                valid = false;
+            }
+
+            return valid;
+        } else if (valueType instanceof this.PresetArray_Type) {
+            if (!this.type(value, this.Iterable)) {
+                errors.push('Preset array must be iterable.');
+                return false;
+            }
+
+            let valid = true;
+
+            let isArray = value instanceof Array;
+            let itemKey = -1;
+            for (let itemValue of value) {
+                itemKey = isArray ? itemKey + 1 : itemValue[0];
+                if (!isArray)
+                    itemValue = itemValue[1];
+
+                let newErrors = [];
+                if (!this.type(itemValue, this.Preset(valueType.presets), newErrors)) {
+                    for (let newError of newErrors)
+                        errors.push(`[${itemKey}]: ${newError}`);
+                    valid = false;
+                }
+            }
+
+            return valid;
         } else if (valueType instanceof this.Prop_Type) {
             let propClass = valueType._propClass;
             if (typeof value !== 'object') {
@@ -317,18 +383,26 @@ Object.defineProperties(js0_Class.prototype, {
     ])},
 
     /* Types Special */
-    Default: { value: Symbol('js0_Default'), },
+    Default: { value: (defaulValue) => {
+        return new js0.Default_Type(defaulValue);
+    }},
     Iterable: { value: Symbol('js0_Iterable'), },
     NotNull: { value: Symbol('js0_NotNull'), },
     Null: { value: Symbol('js0_Null'), },
+    Preset: { value: (presets) => {
+        return new js0.Preset_Type(presets);
+    }},
+    PresetArray: { value: presets => {
+        return new js0.PresetArray_Type(presets);
+    }},
     Prop: { value: (property) => {
-        return new js0.Prop_Type(property); }
-    },
+        return new js0.Prop_Type(property);
+    }},
     PropClass: { value: Symbol('js0_PropClass'), },
     RawObject: { value: Symbol('js0_RawObject'), },
 
     And_Type: { value:
-    class js0_And_Type
+    class js0_And_Type 
     {
         constructor(valueTypes)
         {
@@ -338,6 +412,17 @@ Object.defineProperties(js0_Class.prototype, {
                 _valueTypes: { value: valueTypes, },
             });
         }
+
+    }},
+
+    Default_Type: { value:
+    class js0_Default_Type {
+
+        constructor(defaultValue = undefined)
+        {
+            this.defaultValue = defaultValue;
+        }
+
     }},
 
     // Or_Type: { value:
@@ -353,9 +438,32 @@ Object.defineProperties(js0_Class.prototype, {
     //     }
     // }},
 
+    Preset_Type: { value:
+    class js0_Preset_Type {
+        
+        constructor(presets)
+        {
+            js0.args(arguments, 'object');
+
+            this.presets = presets;
+        }
+
+    }},
+
+    PresetArray_Type: { value:
+    class js0_PresetArray_Type {
+        
+        constructor(presets)
+        {
+            js0.args(arguments, 'object');
+
+            this.presets = presets;
+        }
+
+    }},
+
     Prop_Type: { value:
-    class js0_Prop_Type
-    {
+    class js0_Prop_Type {
 
         constructor(propClass)
         {

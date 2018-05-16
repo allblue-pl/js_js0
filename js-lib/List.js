@@ -126,9 +126,13 @@ class List
     remove(value)
     {
         for (let i = this.size - 1; i >= 0; i--) {
-            if (this.getAt(i) === value)
+            if (this.getAt(i) === value) {
                 this.deleteAt(i);
+                return;
+            }
         }     
+
+        throw new Error(`Value '${value}' does not exist in List.`);
     }
 
     set(key, value)
