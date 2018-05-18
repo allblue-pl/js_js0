@@ -168,7 +168,7 @@ class List
             newValues.push(this.get(newKeys[i]));
 
         this._keys = newKeys;
-        this._newValues = newValues;
+        this._values = newValues;
     }
 
     values()

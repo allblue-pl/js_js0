@@ -443,7 +443,7 @@ Object.defineProperties(js0_Class.prototype, {
         
         constructor(presets)
         {
-            js0.args(arguments, 'object');
+            js0.args(arguments, [ 'object' ]);
 
             this.presets = presets;
         }
