@@ -96,11 +96,17 @@ class js0_Class
 
             return false;
         } else if (valueType === this.Iterable) {
-            errors.push(`\`${value}\` is not \`Iterable\`.`);
-
-            if (typeof value !== 'object')
+            if (value === null || typeof value !== 'object') {
+                errors.push(`\`${value}\` is not \`Iterable\`.`);
                 return false;
-            return typeof value[Symbol.iterator] === 'function';
+            }
+
+            if (typeof value[Symbol.iterator] !== 'function') {
+                errors.push(`\`${value}\` is not \`Iterable\`.`);
+                return false;
+            }
+
+            return true;
         } else if (valueType === this.RawObject)
             return Object.getPrototypeOf(value) === Object.prototype;
         else if (valueType === this.NotNull) {

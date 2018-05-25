@@ -61,8 +61,18 @@ class List
         }
     }
 
-    addAt(index, value)
+    addAt(index, key, value)
     {
+        if (index < 0 || index > this._values.length)
+            throw new Error(`Index \`${index}\` does not exist in \`List\`.`);
+
+        if (this._values.length === index) {
+            this._keys.push(key);
+            this._values.push(value);
+        } else {
+            this._keys.splice(index, 0, key);
+            this._values.splice(index, 0, value);
+        }
 
     }
 
@@ -91,6 +101,14 @@ class List
             throw new Error(`Index \`${index}\` does not exist in \`List\`.`);
 
         return this._values[index];
+    }
+
+    getKeyAt(index)
+    {
+        if (index < 0 || index >= this._values.length)
+            throw new Error(`Index \`${index}\` does not exist in \`List\`.`);
+
+        return this._keys[index];
     }
 
     getKeys()
@@ -138,16 +156,24 @@ class List
     set(key, value)
     {
         let index = this._keys.indexOf(key);
+        if (index === -1)
+            index = this._values.length;
+
         this.setAt(index, key, value);
     }
 
     setAt(index, key, value)
     {
-        if (index === -1) {
+        if (index < 0 || index > this._values.length)
+            throw new Error(`Index \`${index}\` does not exist in \`List\`.`);
+
+        if (index === this._values.length) {
             this._keys.push(key);
             this._values.push(value);
-        } else
+        } else {
+            this._keys[index] = key;
             this._values[index] = value;
+        }
     }
 
     slice()
