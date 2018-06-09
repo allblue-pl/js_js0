@@ -84,6 +84,8 @@ class js0_Class
         if (valueType === null)
             return true;
 
+        let typeofValue = typeof value;
+
         /* Special Types */
         if (valueType === this.Default) {
             if (value === undefined)
@@ -107,9 +109,23 @@ class js0_Class
             }
 
             return true;
-        } else if (valueType === this.RawObject)
-            return Object.getPrototypeOf(value) === Object.prototype;
-        else if (valueType === this.NotNull) {
+        } else if (valueType === this.RawObject) {
+            if (value === null)
+                return true;
+
+            // if (!(typeof value !== 'object')) {
+            //     console.log(typeof value);
+            //     errors.push(`'${value}' is not an RawObject.`);
+            //     return false;
+            // }
+
+            if (Object.getPrototypeOf(value) !== Object.prototype) {
+                errors.push(`'${value}' is not an RawObject.`);
+                return false;
+            }
+
+            return true;
+        } else if (valueType === this.NotNull) {
             if (value === null) {
                 errors.push(`\`${value}\` cannot be \`null\`.`);
                 return false;
@@ -122,8 +138,8 @@ class js0_Class
 
             return false;
         } else if (valueType instanceof this.Preset_Type) {
-            if (typeof value !== 'object') {
-                errors.push('Preset must be an object.');
+            if (typeofValue !== 'object') {
+                errors.push(`Preset must be an object. Found: ${typeofValue}.`);
                 return false;
             }
 
@@ -389,6 +405,9 @@ Object.defineProperties(js0_Class.prototype, {
     ])},
 
     /* Types Special */
+    Array: { value: (itemType) => {
+        return new js0.Array_Type(itemType);
+    }},
     Default: { value: (defaulValue) => {
         return new js0.Default_Type(defaulValue);
     }},
