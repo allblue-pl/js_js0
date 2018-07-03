@@ -109,6 +109,8 @@ class js0_Class
             }
 
             return true;
+        } else if (valueType === this.Object) {
+            return this.type(value, 'object', errors);
         } else if (valueType === this.RawObject) {
             if (value === null)
                 return true;
@@ -137,6 +139,25 @@ class js0_Class
                 return true;
 
             return false;
+        } else if (valueType instanceof this.Iterable_Type) {
+            if (!this.type(value, this.Iterable)) {
+                errors.push(`Preset must be Iterable. Found: ${typeofValue}.`);
+                return false;
+            }
+
+            let valid = true;
+            let i = 0;
+            for (let itemValue of value) {
+                let itemErrors = [];
+                if (!this.type(itemValue, valueType.itemType, itemErrors)) {
+                    let itemKey = value.keys()[i];
+                    valid = false;
+                    errors.push(`Item '${itemKey}' errors: ` + itemErrors.join(', '));
+                }
+                i++;
+            }
+
+            return valid;
         } else if (valueType instanceof this.Preset_Type) {
             if (typeofValue !== 'object') {
                 errors.push(`Preset must be an object. Found: ${typeofValue}.`);
@@ -174,30 +195,6 @@ class js0_Class
             }
 
             return valid;
-        } else if (valueType instanceof this.PresetArray_Type) {
-            if (!this.type(value, this.Iterable)) {
-                errors.push('Preset array must be iterable.');
-                return false;
-            }
-
-            let valid = true;
-
-            let isArray = value instanceof Array;
-            let itemKey = -1;
-            for (let itemValue of value) {
-                itemKey = isArray ? itemKey + 1 : itemValue[0];
-                if (!isArray)
-                    itemValue = itemValue[1];
-
-                let newErrors = [];
-                if (!this.type(itemValue, this.Preset(valueType.presets), newErrors)) {
-                    for (let newError of newErrors)
-                        errors.push(`[${itemKey}]: ${newError}`);
-                    valid = false;
-                }
-            }
-
-            return valid;
         } else if (valueType instanceof this.Prop_Type) {
             let propClass = valueType._propClass;
             if (typeof value !== 'object') {
@@ -231,6 +228,38 @@ class js0_Class
             }
 
             return true;
+        } else if (valueType instanceof this.Object_Type) {
+            if (!this.type(value, this.Object)) {
+                errors.push(`Preset must be an Object. Found: ${typeofValue}.`);
+                return false;
+            }
+
+            let valid = true;
+            for (let itemKey in value) {
+                let itemErrors = [];
+                if (!this.type(value[itemKey], valueType.itemType, itemErrors)) {
+                    valid = false;
+                    errors.push(`Item '${itemKey}' errors: ` + itemErrors.join(', '));
+                }
+            }
+
+            return valid;
+        } else if (valueType instanceof this.RawObject_Type) {
+            if (!this.type(value, this.RawObject)) {
+                errors.push(`Preset must be a RawObject. Found: ${typeofValue}.`);
+                return false;
+            }
+
+            let valid = true;
+            for (let itemKey in value) {
+                let itemErrors = [];
+                if (!this.type(value[itemKey], valueType.itemType, itemErrors)) {
+                    valid = false;
+                    errors.push(`Item '${itemKey}' errors: ` + itemErrors.join(', '));
+                }
+            }
+
+            return valid;
         }
         /* / Special Types */
 
@@ -405,13 +434,12 @@ Object.defineProperties(js0_Class.prototype, {
     ])},
 
     /* Types Special */
-    Array: { value: (itemType) => {
-        return new js0.Array_Type(itemType);
-    }},
     Default: { value: (defaulValue) => {
         return new js0.Default_Type(defaulValue);
     }},
-    Iterable: { value: Symbol('js0_Iterable'), },
+    Iterable: { value: (itemType) => {
+        return new js0.Iterable_Type(itemType);
+    }},
     NotNull: { value: Symbol('js0_NotNull'), },
     Null: { value: Symbol('js0_Null'), },
     Preset: { value: (presets) => {
@@ -424,7 +452,12 @@ Object.defineProperties(js0_Class.prototype, {
         return new js0.Prop_Type(property);
     }},
     PropClass: { value: Symbol('js0_PropClass'), },
-    RawObject: { value: Symbol('js0_RawObject'), },
+    Object: { value: (itemType) => {
+        return new js0.Object_Type(itemType);
+    }},
+    RawObject: { value: (itemType) => {
+        return new js0.RawObject_Type(itemType);
+    }},
 
     And_Type: { value:
     class js0_And_Type 
@@ -446,6 +479,16 @@ Object.defineProperties(js0_Class.prototype, {
         constructor(defaultValue = undefined)
         {
             this.defaultValue = defaultValue;
+        }
+
+    }},
+
+    Iterable_Type: { value:
+    class js0_Iterable_Type {
+
+        constructor(itemType)
+        {
+            this.itemType = itemType;
         }
 
     }},
@@ -497,6 +540,26 @@ Object.defineProperties(js0_Class.prototype, {
             Object.defineProperties(this, {
                 _propClass: { value: propClass, },
             });
+        }
+
+    }},
+
+    Object_Type: { value:
+    class js0_Object_Type {
+
+        constructor(itemType)
+        {
+            this.itemType = itemType;
+        }
+
+    }},
+
+    RawObject_Type: { value:
+    class js0_RawObject_Type {
+
+        constructor(itemType)
+        {
+            this.itemType = itemType;
         }
 
     }},
