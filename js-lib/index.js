@@ -152,13 +152,18 @@ class js0_Class
                 if (!this.type(itemValue, valueType.itemType, itemErrors)) {
                     let itemKey = value.keys()[i];
                     valid = false;
-                    errors.push(`Item '${itemKey}' errors: ` + itemErrors.join(', '));
+                    errors.push(`Item '${i}' errors: ` + itemErrors.join(', '));
                 }
                 i++;
             }
 
             return valid;
         } else if (valueType instanceof this.Preset_Type) {
+            if (value === null) {
+                errors.push(`Preset cannot be null.`);
+                return false;
+            }
+
             if (typeofValue !== 'object') {
                 errors.push(`Preset must be an object. Found: ${typeofValue}.`);
                 return false;
@@ -444,9 +449,6 @@ Object.defineProperties(js0_Class.prototype, {
     Null: { value: Symbol('js0_Null'), },
     Preset: { value: (presets) => {
         return new js0.Preset_Type(presets);
-    }},
-    PresetArray: { value: presets => {
-        return new js0.PresetArray_Type(presets);
     }},
     Prop: { value: (property) => {
         return new js0.Prop_Type(property);
