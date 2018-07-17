@@ -98,7 +98,7 @@ class js0_Class
 
             return false;
         } else if (valueType === this.Iterable) {
-            if (value === null || typeof value !== 'object') {
+            if (value === null || typeof value !== 'object') {                
                 errors.push(`\`${value}\` is not \`Iterable\`.`);
                 return false;
             }
@@ -159,6 +159,12 @@ class js0_Class
 
             return valid;
         } else if (valueType instanceof this.Preset_Type) {
+            if (typeofValue === 'undefined' && typeof 
+                    valueType.defaultValue !== 'undefined') {
+                value = valueType.defaultValue;
+                typeofValue = typeof value;
+            }
+
             if (value === null) {
                 errors.push(`Preset cannot be null.`);
                 return false;
@@ -447,8 +453,8 @@ Object.defineProperties(js0_Class.prototype, {
     }},
     NotNull: { value: Symbol('js0_NotNull'), },
     Null: { value: Symbol('js0_Null'), },
-    Preset: { value: (presets) => {
-        return new js0.Preset_Type(presets);
+    Preset: { value: (presets, defaultValue = undefined) => {
+        return new js0.Preset_Type(presets, defaultValue);
     }},
     Prop: { value: (property) => {
         return new js0.Prop_Type(property);
@@ -511,11 +517,12 @@ Object.defineProperties(js0_Class.prototype, {
     Preset_Type: { value:
     class js0_Preset_Type {
         
-        constructor(presets)
+        constructor(presets, defaultValue = undefined)
         {
-            js0.args(arguments, [ 'object' ]);
+            js0.args(arguments, [ 'object' ], [ 'object', null ]);
 
             this.presets = presets;
+            this.defaultValue = defaultValue;
         }
 
     }},
