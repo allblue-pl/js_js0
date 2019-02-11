@@ -115,6 +115,11 @@ class js0_Class
             if (value === null)
                 return true;
 
+            if (typeofValue === 'undefined') {
+                errors.push(`'${value}' is not an RawObject.`);
+                return false;
+            }
+
             // if (!(typeof value !== 'object')) {
             //     console.log(typeof value);
             //     errors.push(`'${value}' is not an RawObject.`);
