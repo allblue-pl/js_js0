@@ -67,8 +67,13 @@ class js0_Class
         propArgs.splice(0, 0, null);
         let prop = new (Function.prototype.bind.apply(propClass, propArgs))();
         Object.defineProperty(mainObject, propClass.Property, {
-            value: prop
+            get: () => { return prop; },
         });
+    }
+
+    implements(mainObject, ...interfaceClasses)
+    {
+
     }
 
     rtn(valueType)
@@ -144,6 +149,15 @@ class js0_Class
                 return true;
 
             return false;
+        } else if (valueType instanceof this.Enum_Type) {
+            for (let value_Enum of valueType.values) {
+                if (value === value_Enum)
+                    return true;
+            }
+
+            errors.push(`Enum value '${value}' not found in '` + 
+                    valueType.values.join(', ') + `'.`);
+            return false;
         } else if (valueType instanceof this.Iterable_Type) {
             if (!this.type(value, this.Iterable)) {
                 errors.push(`Preset must be Iterable. Found: ${typeofValue}.`);
@@ -206,6 +220,52 @@ class js0_Class
 
                 for (let newError of newErrors)
                     errors.push(`${key} -> ${newError}`);
+
+                valid = false;
+            }
+
+            return valid;
+        } else if (valueType instanceof this.PresetArray_Type) {
+            if (typeofValue === 'undefined' && typeof 
+                    valueType.defaultValue !== 'undefined') {
+                value = valueType.defaultValue;
+                typeofValue = typeof value;
+            }
+
+            if (value === null) {
+                errors.push(`Preset cannot be null.`);
+                return false;
+            }
+
+            if (!(value instanceof Array)) {
+                errors.push(`PresetArray must be an array. Found: ${typeofValue}.`);
+                return false;
+            }
+
+            let valid = true;
+            
+            if (value.length !== valueType.presets.length) {
+                errors.push(`Wrong PresetArray length. Required: '${valueType.presets.length}'.`);
+                    valid = false;
+            }
+
+            for (let i = 0; i < valueType.presets.length; i++) {
+                let newErrors = [];
+                
+                if (typeof value[i] === 'undefined') {
+                    if (valueType.presets[i] instanceof Array) {
+                        for (let propValueType of valueType.presets[i]) {
+                            if (propValueType instanceof this.Default_Type)
+                                value[i] = propValueType.defaultValue;
+                        }
+                    }
+                } 
+
+                if (this.type(value[i], valueType.presets[i], newErrors))
+                    continue;
+
+                for (let newError of newErrors)
+                    errors.push(`${i} -> ${newError}`);
 
                 valid = false;
             }
@@ -301,7 +361,7 @@ class js0_Class
                         break;
                 }
             } else {
-                errors.push(`Unknown \type \`${valueType}\`.`);
+                errors.push(`Unknown type '${valueType}'.`);
                 return false;
             }
 
@@ -383,6 +443,11 @@ class js0_Class
                 ` \`${object.constructor.name}\`.`);
     }
 
+    virtual()
+    {
+
+    }
+
 }
 const js0 = js0_Class.prototype;
 
@@ -450,8 +515,11 @@ Object.defineProperties(js0_Class.prototype, {
     ])},
 
     /* Types Special */
-    Default: { value: (defaulValue) => {
-        return new js0.Default_Type(defaulValue);
+    Default: { value: (defaultValue) => {
+        return new js0.Default_Type(defaultValue);
+    }},
+    Enum: { value: (values) => {
+        return new js0.Enum_Type(values);
     }},
     Iterable: { value: (itemType) => {
         return new js0.Iterable_Type(itemType);
@@ -460,6 +528,9 @@ Object.defineProperties(js0_Class.prototype, {
     Null: { value: Symbol('js0_Null'), },
     Preset: { value: (presets, defaultValue = undefined) => {
         return new js0.Preset_Type(presets, defaultValue);
+    }},
+    PresetArray: { value: (presets, defaultValue = undefined) => {
+        return new js0.PresetArray_Type(presets, defaultValue);
     }},
     Prop: { value: (property) => {
         return new js0.Prop_Type(property);
@@ -495,6 +566,19 @@ Object.defineProperties(js0_Class.prototype, {
         }
 
     }},
+
+    Enum_Type: { value:
+        class js0_Enum_Type {
+    
+            constructor(values = [])
+            {
+                if (!(values instanceof Array))
+                    throw new Error(`'js0.Enum' values must be an Array.`);
+
+                this.values = values;
+            }
+    
+        }},
 
     Iterable_Type: { value:
     class js0_Iterable_Type {
@@ -537,7 +621,7 @@ Object.defineProperties(js0_Class.prototype, {
         
         constructor(presets)
         {
-            js0.args(arguments, 'object');
+            js0.args(arguments, Array);
 
             this.presets = presets;
         }
