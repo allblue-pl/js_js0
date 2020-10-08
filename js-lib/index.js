@@ -76,12 +76,17 @@ class js0_Class
 
     }
 
-    rtn(valueType)
+    rtn(valueType, value = this.NotSet)
     {
-        return (value) => {
-            this.typeE(value, valueType);
-            return value;
-        };
+        if (value === this.NotSet) {
+            return (value) => {
+                this.typeE(value, valueType);
+                return value;
+            };
+        }
+
+        this.typeE(value, valueType);
+        return value;
     }
 
     type(value, valueType, errors = [])
@@ -92,7 +97,19 @@ class js0_Class
         let typeofValue = typeof value;
 
         /* Special Types */
-        if (valueType === this.Default) {
+        if (valueType === this.ArrayItems) {
+            if (value === null || typeof value !== 'object') {                
+                errors.push(`\`${value}\` is not an instance \`Array\`.`);
+                return false;
+            }
+
+            if (!(value instanceof Array)) {
+                errors.push(`\`${value}\` is not an instance of \`Array\`.`);
+                return false;
+            }
+
+            return true;
+        } else if (valueType === this.Default) {
             if (value === undefined)
                 return true;
 
@@ -102,6 +119,8 @@ class js0_Class
                 return true;
 
             return false;
+        } else if (valueType === this.Int) {
+            return this.type(value, 'int', errors);
         } else if (valueType === this.Iterable) {
             if (value === null || typeof value !== 'object') {                
                 errors.push(`\`${value}\` is not \`Iterable\`.`);
@@ -114,6 +133,8 @@ class js0_Class
             }
 
             return true;
+        } else if (valueType === this.Long) {
+            return this.type(value, 'int', errors);
         } else if (valueType === this.Object) {
             return this.type(value, 'object', errors);
         } else if (valueType === this.RawObject) {
@@ -149,6 +170,25 @@ class js0_Class
                 return true;
 
             return false;
+        } else if (valueType instanceof this.ArrayItems_Type) {
+            if (!this.type(value, this.ArrayItems)) {
+                errors.push(`Value must be an instance of Array. Found: ${typeofValue}.`);
+                return false;
+            }
+
+            let valid = true;
+            let i = 0;
+            for (let itemValue of value) {
+                let itemErrors = [];
+                if (!this.type(itemValue, valueType.itemType, itemErrors)) {
+                    let itemKey = value.keys()[i];
+                    valid = false;
+                    errors.push(`Item '${i}' errors: ` + itemErrors.join(', '));
+                }
+                i++;
+            }
+
+            return valid;
         } else if (valueType instanceof this.Enum_Type) {
             for (let value_Enum of valueType.values) {
                 if (value === value_Enum)
@@ -443,11 +483,6 @@ class js0_Class
                 ` \`${object.constructor.name}\`.`);
     }
 
-    virtual()
-    {
-
-    }
-
 }
 const js0 = js0_Class.prototype;
 
@@ -515,16 +550,22 @@ Object.defineProperties(js0_Class.prototype, {
     ])},
 
     /* Types Special */
+    ArrayItems: { value: (itemType) => {
+        return new js0.ArrayItems_Type(itemType);
+    }},
     Default: { value: (defaultValue) => {
         return new js0.Default_Type(defaultValue);
     }},
     Enum: { value: (values) => {
         return new js0.Enum_Type(values);
     }},
+    Int: { value: Symbol('js0_Int'), },
     Iterable: { value: (itemType) => {
         return new js0.Iterable_Type(itemType);
     }},
+    Long: { value: Symbol('js0_Long'), },
     NotNull: { value: Symbol('js0_NotNull'), },
+    NotSet: { value: Symbol('js0_NotSet'), },
     Null: { value: Symbol('js0_Null'), },
     Preset: { value: (presets, defaultValue = undefined) => {
         return new js0.Preset_Type(presets, defaultValue);
@@ -536,12 +577,8 @@ Object.defineProperties(js0_Class.prototype, {
         return new js0.Prop_Type(property);
     }},
     PropClass: { value: Symbol('js0_PropClass'), },
-    Object: { value: (itemType) => {
-        return new js0.Object_Type(itemType);
-    }},
-    RawObject: { value: (itemType) => {
-        return new js0.RawObject_Type(itemType);
-    }},
+    Object: { value: Symbol('js0_Object'), },
+    RawObject: { value: Symbol('js0_RawObject'), },
 
     And_Type: { value:
     class js0_And_Type 
@@ -553,6 +590,16 @@ Object.defineProperties(js0_Class.prototype, {
             Object.defineProperties(this, {
                 _valueTypes: { value: valueTypes, },
             });
+        }
+
+    }},
+
+    ArrayItems_Type: { value:
+    class js0_ArrayItems_Type {
+
+        constructor(itemType)
+        {
+            this.itemType = itemType;
         }
 
     }},
