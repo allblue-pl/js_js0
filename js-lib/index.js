@@ -41,6 +41,83 @@ class js0_Class
             throw new this.AssertionError(message);
     }
 
+    copyArray(arr)
+    {
+        this.args(arguments, Array);
+
+        let valueTypes = [
+            'undefined',
+            'boolean',
+            'number',
+            'string',
+        ];
+
+        let arr_New = new Array();
+        for (let val of arr) {
+            // if (this.type(val, valueTypes)) {
+            //     arr_New.push(val);
+            //     continue;
+            // }
+
+            if (this.type(val, js0.Null)) {
+                arr.push(null);
+                continue;
+            }
+
+            if (this.type(val, this.RawObject)) {
+                arr_New.push(this.copyObject(val));
+                continue;
+            }
+
+            if (this.type(val, Array)) {
+                arr_New.push(this.copyArray(val));
+                continue;
+            }
+
+            arr_New.push(val);
+        }
+
+        return arr_New;
+    }
+
+    copyObject(obj)
+    {
+        this.args(arguments, js0.RawObject);
+
+        let valueTypes = [
+            'undefined',
+            'boolean',
+            'number',
+            'string',
+        ];
+
+        let obj_New = {};
+        for (let prop in obj) {
+            // if (this.type(obj[prop], valueTypes)) {
+            //     obj_New[prop] = obj;
+            //     continue;
+            // }
+            if (this.type(obj[prop], js0.Null)) {
+                obj_New[prop] = null;
+                continue;
+            }
+
+            if (this.type(obj[prop], this.RawObject)) {
+                obj_New[prop] = this.copyObject(obj[prop]);
+                continue;
+            }
+
+            if (this.type(obj[prop], Array)) {
+                obj_New[prop] = this.copyArray(obj[prop]);
+                continue;
+            }
+
+            obj_New[prop] = obj[prop];
+        }
+
+        return obj_New;
+    }
+
     // implement(mainObject, propClass, ...propArgs)
     // {
     //     this.prop(mainObject, propClass, ...propArgs);
