@@ -211,7 +211,7 @@ class js0_Class
 
             return true;
         } else if (valueType === this.Long) {
-            return this.type(value, 'int', errors);
+            return this.type(value, 'bigint', errors);
         } else if (valueType === this.Object) {
             return this.type(value, 'object', errors);
         } else if (valueType === this.RawObject) {
@@ -620,6 +620,7 @@ Object.defineProperties(js0_Class.prototype, {
 
     Types_Extended: { value:
     new Set([
+        'bigint',
         'bool',
         'finite',
         'int',
