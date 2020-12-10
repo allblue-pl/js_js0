@@ -484,7 +484,8 @@ class js0_Class
 
             if (!result) {
                 let typeof_value = typeof value;
-                errors.push(`Variable \`${value}\` of type \`${typeof_value}\`` +
+                let value_Str = String(value);
+                errors.push(`Variable \`${value_Str}\` of type \`${typeof_value}\`` +
                     ` should be of type \`${valueType}\`.`);
                 return false;
             }
