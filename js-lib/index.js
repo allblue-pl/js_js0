@@ -11,7 +11,7 @@ class js0_Class
 
     constructor()
     {
-
+        
     }
 
     args(args, ...types)
