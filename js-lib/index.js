@@ -8,6 +8,10 @@ class js0_Class
         return require('./List');
     }
 
+    get TimeSpan() {
+        return require('./TimeSpan');
+    }
+
 
     constructor()
     {
