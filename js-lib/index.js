@@ -316,7 +316,7 @@ class js0_Class
             }
 
             let valid = true;
-            
+
             for (let key in value) {
                 if (!(key in valueType.presets)) {
                     errors.push(`Unknown key \`${key}\`.`);
