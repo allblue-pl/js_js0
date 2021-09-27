@@ -195,11 +195,6 @@ class js0_Class
                 return true;
 
             return false;
-        } else if (valueType === this.Default_Type) {
-            if (value === undefined)
-                return true;
-
-            return false;
         } else if (valueType === this.Int) {
             return this.type(value, 'int', errors);
         } else if (valueType === this.Iterable) {
@@ -252,7 +247,7 @@ class js0_Class
 
             return false;
         } else if (valueType instanceof this.ArrayItems_Type) {
-            if (!this.type(value, this.ArrayItems)) {
+            if (!this.type(value, Array)) {
                 errors.push(`Value must be an instance of Array. Found: ${typeofValue}.`);
                 return false;
             }
@@ -278,6 +273,8 @@ class js0_Class
 
             errors.push(`Enum value '${value}' not found in '` + 
                     valueType.values.join(', ') + `'.`);
+            return false;
+        } else if (valueType instanceof this.Default_Type) {
             return false;
         } else if (valueType instanceof this.Iterable_Type) {
             if (!this.type(value, this.Iterable)) {
@@ -344,6 +341,8 @@ class js0_Class
 
                 valid = false;
             }
+
+            // console.log('WTF', value, valid, errors);
 
             return valid;
         } else if (valueType instanceof this.PresetArray_Type) {
