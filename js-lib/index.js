@@ -20,9 +20,16 @@ class js0_Class
 
     args(args, ...types)
     {
+        if (types[types.length - 1] === this.ExtraArgs) 
+            types.pop();
+        else {
+            if (args.length > types.length)
+                throw new Error('Too many arguments in function.');
+        }
+
         for (let i = 0; i < types.length; i++) {
             let errors = [];
-            if (!this.type(args[i], types[i], errors)) {
+            if (!this.type(args[i], types[i], errors, true)) {
                 console.error(`Error: Argument ${i} -> `, errors);
                 throw new this.TypeError('Wrong argument type.');
             }
@@ -106,7 +113,7 @@ class js0_Class
                 continue;
             }
 
-            if (this.type(obj[prop], this.RawObject)) {
+            if (this.type(obj[prop], js0.RawObject)) {
                 obj_New[prop] = this.copyObject(obj[prop]);
                 continue;
             }
@@ -160,7 +167,7 @@ class js0_Class
 
     prop(mainObject, propClass, ...propArgs)
     {
-        this.args(arguments, 'object', 'function');
+        this.args(arguments, 'object', 'function', js0.ExtraArgs);
 
         if (!('Property' in propClass)) {
             throw new Error(`\`${propClass}\` is not a \`Property\` ` +
@@ -196,7 +203,7 @@ class js0_Class
         return value;
     }
 
-    type(value, valueType, errors = [])
+    type(value, valueType, errors = [], args = false)
     {
         if (valueType === null)
             return true;
@@ -337,6 +344,9 @@ class js0_Class
 
             return valid;
         } else if (valueType instanceof this.Preset_Type) {
+            if (args)
+                throw new Error('Preset type cannot be used in function arguments.');
+
             if (typeofValue === 'undefined' && typeof 
                     valueType.defaultValue !== 'undefined') {
                 value = valueType.defaultValue;
@@ -589,14 +599,14 @@ class js0_Class
             if (value !== valueType) {
                 let value_Str = String(value);
                 let valueType_Str = String(valueType);
-                errors.push(`Variable '${valueStr}' is not ${valueType_Str}.`);
+                errors.push(`Variable '${value_Str}' is not ${valueType_Str}.`);
                 return false;
             }
 
             return true;
         }
 
-        throw new Error(`Unknown \`valueType\`: ${typeofValueType}`);
+        throw new Error(`Unknown 'valueType': ${typeofValueType}`);
     }
 
     typeE(value, valueType)
@@ -695,6 +705,7 @@ Object.defineProperties(js0_Class.prototype, {
     Enum: { value: (values) => {
         return new js0.Enum_Type(values);
     }},
+    ExtraArgs: { value: Symbol('js0_ExtraArgs'), },
     Int: { value: Symbol('js0_Int'), },
     Iterable: { value: (itemType) => {
         return new js0.Iterable_Type(itemType);
@@ -703,11 +714,11 @@ Object.defineProperties(js0_Class.prototype, {
     NotNull: { value: Symbol('js0_NotNull'), },
     NotSet: { value: Symbol('js0_NotSet'), },
     Null: { value: Symbol('js0_Null'), },
-    Preset: { value: (presets, defaultValue = undefined) => {
-        return new js0.Preset_Type(presets, defaultValue);
+    Preset: { value: (presets) => {
+        return new js0.Preset_Type(presets);
     }},
-    PresetArray: { value: (presets, defaultValue = undefined) => {
-        return new js0.PresetArray_Type(presets, defaultValue);
+    PresetArray: { value: (presets) => {
+        return new js0.PresetArray_Type(presets);
     }},
     Prop: { value: (property) => {
         return new js0.Prop_Type(property);
@@ -802,12 +813,12 @@ Object.defineProperties(js0_Class.prototype, {
     Preset_Type: { value:
     class js0_Preset_Type {
         
-        constructor(presets, defaultValue = undefined)
+        constructor(presets)
         {
-            js0.args(arguments, [ 'object' ], [ 'object', null ]);
+            js0.args(arguments, js0.RawObject);
 
             this.presets = presets;
-            this.defaultValue = defaultValue;
+            // this.defaultValue = defaultValue;
         }
 
     }},
