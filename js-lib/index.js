@@ -205,8 +205,14 @@ class js0_Class
 
     type(value, valueType, errors = [], args = false)
     {
-        if (valueType === null)
+        if (valueType === null) {
+            if (typeof value === 'undefined') {
+                errors.push('Arg not set.');
+                return false;
+            }
+
             return true;
+        }
 
         let typeofValue = typeof value;
 
