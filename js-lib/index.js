@@ -76,7 +76,7 @@ class js0_Class
             }
 
             if (this.type(val, this.RawObject)) {
-                arr_New.push(this.copyObject(val));
+                arr_New.push(this.copyRawObject(val));
                 continue;
             }
 
@@ -91,16 +91,16 @@ class js0_Class
         return arr_New;
     }
 
-    copyObject(obj)
+    copyRawObject(obj)
     {
         this.args(arguments, js0.RawObject);
 
-        let valueTypes = [
-            'undefined',
-            'boolean',
-            'number',
-            'string',
-        ];
+        // let valueTypes = [
+        //     'undefined',
+        //     'boolean',
+        //     'number',
+        //     'string',
+        // ];
 
         let obj_New = {};
         for (let prop in obj) {
@@ -114,7 +114,7 @@ class js0_Class
             }
 
             if (this.type(obj[prop], js0.RawObject)) {
-                obj_New[prop] = this.copyObject(obj[prop]);
+                obj_New[prop] = this.copyRawObject(obj[prop]);
                 continue;
             }
 
