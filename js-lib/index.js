@@ -23,14 +23,17 @@ class js0_Class
         if (types[types.length - 1] === this.ExtraArgs) 
             types.pop();
         else {
-            if (args.length > types.length)
+            if (args.length > types.length) {
+                console.warn(new Error());
                 throw new Error('Too many arguments in function.');
+            }
         }
 
         for (let i = 0; i < types.length; i++) {
             let errors = [];
             if (!this.type(args[i], types[i], errors, true)) {
                 console.error(`Error: Argument ${i} -> `, errors);
+                console.warn(new Error());
                 throw new this.TypeError('Wrong argument type.');
             }
         }
@@ -48,8 +51,10 @@ class js0_Class
 
     assert(value, message = '')
     {
-        if (!value)
+        if (!value) {
+            console.warn(new Error());
             throw new this.AssertionError(message);
+        }
     }
 
     copyArray(arr)
@@ -170,10 +175,12 @@ class js0_Class
         this.args(arguments, 'object', 'function', js0.ExtraArgs);
 
         if (!('Property' in propClass)) {
+            console.warn(new Error());
             throw new Error(`\`${propClass}\` is not a \`Property\` ` +
                     `(no \`Property\` in object prototype).`);
         }
         if (typeof propClass.Property !== 'string') {
+            console.warn(new Error());
             throw new Error(`\`${propClass}\` is not a \`Property\` ` +
                     `(\`Property\` is not a string).`);
         }
@@ -350,8 +357,10 @@ class js0_Class
 
             return valid;
         } else if (valueType instanceof this.Preset_Type) {
-            if (args)
+            if (args) {
+                console.warn(new Error());
                 throw new Error('Preset type cannot be used in function arguments.');
+            }
 
             if (typeofValue === 'undefined' && typeof 
                     valueType.defaultValue !== 'undefined') {
@@ -612,6 +621,7 @@ class js0_Class
             return true;
         }
 
+        console.warn(new Error());
         throw new Error(`Unknown 'valueType': ${typeofValueType}`);
     }
 
@@ -622,14 +632,18 @@ class js0_Class
             return;
 
         console.error('Error:', errors);
+        console.warn(new Error());
         throw new this.TypeError('Wrong variable type.');
     }
 
     virtual(object = null)
     {
-        if (object === null)
+        if (object === null) {
+            console.warn(new Error());
             throw new this.NotImplementedError();
+        }
 
+        console.warn(new Error());
         throw new this.NotImplementedError(`Method not implemented in:` +
                 ` \`${object.constructor.name}\`.`);
     }
@@ -775,8 +789,10 @@ Object.defineProperties(js0_Class.prototype, {
     
             constructor(values = [])
             {
-                if (!(values instanceof Array))
+                if (!(values instanceof Array)) {
+                    console.warn(new Error());
                     throw new Error(`'js0.Enum' values must be an Array.`);
+                }
 
                 this.values = values;
             }
