@@ -13,13 +13,11 @@ class js0_Class
     }
 
 
-    constructor()
-    {
+    constructor() {
         
     }
 
-    args(args, ...types)
-    {
+    args(args, ...types) {
         if (types[types.length - 1] === this.ExtraArgs) 
             types.pop();
         else {
@@ -30,17 +28,21 @@ class js0_Class
         }
 
         for (let i = 0; i < types.length; i++) {
-            let errors = [];
-            if (!this.type(args[i], types[i], errors, true)) {
-                console.error(`Error: Argument ${i} -> `, errors);
-                console.warn(new Error());
-                throw new this.TypeError('Wrong argument type.');
+            try {
+                let errors = [];
+                if (!this.type(args[i], types[i], errors, true)) {
+                    console.error(`Error: Argument ${i} -> `, errors);
+                    console.warn(new Error());
+                    throw new this.TypeError('Wrong argument type.');
+                }
+            } catch (e) {
+                throw new Error(`Error thrown for argument ${i} -> ` + 
+                        e.message);
             }
         }
     }
 
-    argsC(args, ...types)
-    {
+    argsC(args, ...types) {
         for (let i = 0; i < types.length; i++) {
             if (!this.type(args[i], types[i]))
                 return false;
@@ -49,16 +51,14 @@ class js0_Class
         return true;
     }
 
-    assert(value, message = '')
-    {
+    assert(value, message = '') {
         if (!value) {
             console.warn(new Error());
             throw new this.AssertionError(message);
         }
     }
 
-    copyArray(arr)
-    {
+    copyArray(arr) {
         this.args(arguments, Array);
 
         let valueTypes = [
@@ -96,8 +96,7 @@ class js0_Class
         return arr_New;
     }
 
-    copyRawObject(obj)
-    {
+    copyRawObject(obj) {
         this.args(arguments, js0.RawObject);
 
         // let valueTypes = [
@@ -134,8 +133,7 @@ class js0_Class
         return obj_New;
     }
 
-    def(object, propertyInfos)
-    {
+    def(object, propertyInfos) {
         js0.args(arguments, 'object', js0.ObjectItems(
             js0.ArrayItems([ null, null ]),
         ));
@@ -170,8 +168,7 @@ class js0_Class
     //     return this.type(object, this.Prop(propClass));
     // }
 
-    prop(mainObject, propClass, ...propArgs)
-    {
+    prop(mainObject, propClass, ...propArgs) {
         this.args(arguments, 'object', 'function', js0.ExtraArgs);
 
         if (!('Property' in propClass)) {
@@ -192,13 +189,11 @@ class js0_Class
         });
     }
 
-    implements(mainObject, ...interfaceClasses)
-    {
+    implements(mainObject, ...interfaceClasses) {
 
     }
 
-    rtn(valueType, value = this.NotSet)
-    {
+    rtn(valueType, value = this.NotSet) {
         if (value === this.NotSet) {
             return (value) => {
                 this.typeE(value, valueType);
@@ -210,8 +205,7 @@ class js0_Class
         return value;
     }
 
-    type(value, valueType, errors = [], args = false)
-    {
+    type(value, valueType, errors = [], args = false) {
         if (valueType === null) {
             if (typeof value === 'undefined') {
                 errors.push('Arg not set.');
@@ -237,7 +231,7 @@ class js0_Class
 
         //     return true;
         if (valueType === this.Default) {
-            if (value === undefined)
+            if (typeof value === 'undefined')
                 return true;
 
             return false;
@@ -583,7 +577,9 @@ class js0_Class
                 return false;
             }
 
-            return true;
+            console.warn(new Error());
+            console.warn('Value type: ', valueType);
+            throw new Error(`Unknown 'valueType': ${typeofValueType}`);
         }
 
         if (typeofValueType === 'function') {
@@ -625,8 +621,7 @@ class js0_Class
         throw new Error(`Unknown 'valueType': ${typeofValueType}`);
     }
 
-    typeE(value, valueType)
-    {
+    typeE(value, valueType) {
         let errors = [];
         if (this.type(value, valueType, errors))
             return;
@@ -636,8 +631,7 @@ class js0_Class
         throw new this.TypeError('Wrong variable type.');
     }
 
-    virtual(object = null)
-    {
+    virtual(object = null) {
         if (object === null) {
             console.warn(new Error());
             throw new this.NotImplementedError();
@@ -655,8 +649,7 @@ Object.defineProperties(js0_Class.prototype, {
 
     /* Errors */
     AssertionError: { value:
-    class js0_AssertionError extends Error
-    {
+    class js0_AssertionError extends Error {
         constructor(...args)
         {
             super(...args);
@@ -665,8 +658,7 @@ Object.defineProperties(js0_Class.prototype, {
     }},
 
     NotImplementedError: { value:
-    class js0_NotImplementedError extends Error
-    {
+    class js0_NotImplementedError extends Error {
 
         constructor(...args)
         {
@@ -677,8 +669,7 @@ Object.defineProperties(js0_Class.prototype, {
 
 
     TypeError: { value:
-    class js0_TypeError extends Error
-    {
+    class js0_TypeError extends Error {
 
         constructor(...args)
         {
@@ -751,8 +742,7 @@ Object.defineProperties(js0_Class.prototype, {
     RawObject: { value: Symbol('js0_RawObject'), },
 
     And_Type: { value:
-    class js0_And_Type 
-    {
+    class js0_And_Type  {
         constructor(valueTypes)
         {
             js0.args(arguments, js0.PropClass);

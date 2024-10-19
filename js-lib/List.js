@@ -11,8 +11,7 @@ class List
     }
 
 
-    constructor(iterable = null)
-    {
+    constructor(iterable = null) {
         js0.args(arguments, [ js0.Iterable, js0.Default ]);
 
         this._keys = [];
@@ -32,13 +31,11 @@ class List
         }
     }
 
-    [Symbol.iterator]()
-    {
+    [Symbol.iterator]() {
         return new List.Iterator(this);
     }
 
-    add(...values)
-    {
+    add(...values) {
         let index = 0;
         for (let value of values) {
             while(this._keys.includes(index))
@@ -48,8 +45,7 @@ class List
         }
     }
 
-    addAll(values)
-    {
+    addAll(values) {
         js0.args(arguments, js0.Iterable);
 
         let index = 0;
@@ -61,8 +57,7 @@ class List
         }
     }
 
-    addAt(index, key, value)
-    {
+    addAt(index, key, value) {
         if (index < 0 || index > this._values.length)
             throw new Error(`Index \`${index}\` does not exist in \`List\`.`);
 
@@ -76,73 +71,61 @@ class List
 
     }
 
-    delete(key)
-    {
+    delete(key) {
         let index = this._getIndexE(key);
         this.deleteAt(index);
     }
 
-    deleteAt(index)
-    {
+    deleteAt(index) {
         this._keys.splice(index, 1);
         this._values.splice(index, 1);
     }
 
-    get(key)
-    {
+    get(key) {
         let index = this._getIndexE(key);
 
         return this._values[index];
     }
 
-    getAt(index)
-    {
+    getAt(index) {
         if (index < 0 || index >= this._values.length)
             throw new Error(`Index \`${index}\` does not exist in \`List\`.`);
 
         return this._values[index];
     }
 
-    getKeyAt(index)
-    {
+    getKeyAt(index) {
         if (index < 0 || index >= this._values.length)
             throw new Error(`Index \`${index}\` does not exist in \`List\`.`);
 
         return this._keys[index];
     }
 
-    getKeys()
-    {
+    getKeys() {
         return this._keys.slice();
     }
 
-    getValues()
-    {
+    getValues() {
         return this._values.slice();
     }
 
-    has(key)
-    {
+    has(key) {
         return this._keys.includes(key);
     }
 
-    includes(value)
-    {
+    includes(value) {
         return this._values.includes(value);
     }
 
-    indexOf(value)
-    {
+    indexOf(value) {
         return this._values.indexOf(value);
     }
 
-    keys()
-    {
+    keys() {
         return this._keys.slice();
     }
 
-    remove(value)
-    {
+    remove(value) {
         for (let i = this.size - 1; i >= 0; i--) {
             if (this.getAt(i) === value) {
                 this.deleteAt(i);
@@ -153,8 +136,7 @@ class List
         throw new Error(`Value '${value}' does not exist in List.`);
     }
 
-    set(key, value)
-    {
+    set(key, value) {
         let index = this._keys.indexOf(key);
         if (index === -1)
             index = this._values.length;
@@ -162,8 +144,7 @@ class List
         this.setAt(index, key, value);
     }
 
-    setAt(index, key, value)
-    {
+    setAt(index, key, value) {
         if (index < 0 || index > this._values.length)
             throw new Error(`Index \`${index}\` does not exist in \`List\`.`);
 
@@ -176,13 +157,11 @@ class List
         }
     }
 
-    slice()
-    {
+    slice() {
 
     }
 
-    sort(compareFn)
-    {
+    sort(compareFn) {
         let newKeys = this._keys.slice();
         newKeys.sort((aKey, bKey) => {
             return compareFn({ key: aKey, value: this.get(aKey) },
@@ -197,14 +176,12 @@ class List
         this._values = newValues;
     }
 
-    values()
-    {
+    values() {
         return this._values.slice();
     }
 
 
-    _getIndexE(key)
-    {
+    _getIndexE(key) {
         let index = this._keys.indexOf(key);
         if (index === -1)
             throw new Error(`Key \`${key}\` does not exist in \`List\`.`);
@@ -219,8 +196,7 @@ module.exports = List;
 Object.defineProperties(List, {
 
     Iterator: { value:
-    class List_Iterator
-    {
+    class List_Iterator {
 
         constructor(list)
         {

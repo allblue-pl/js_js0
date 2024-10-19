@@ -44,8 +44,7 @@ js0.typeE(pre1, js0.Preset({
 
 console.log(pre1);
 
-let pre2 = [
-    {
+let pre2 = [ {
         v1: 'Test',
         // v3: 'Spock',
         v2: 'Nie Magda',

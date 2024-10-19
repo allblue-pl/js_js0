@@ -3,16 +3,14 @@
 class TimeSpan
 {
 
-    static GetInstance(instanceAlias)
-    {
+    static GetInstance(instanceAlias) {
         if (!(instanceAlias in TimeSpan.Instances))
             throw new Error(`TimeSpan instance '${instanceAlias}' does not exist.`);
 
         return TimeSpan.Instances[instanceAlias];
     }
 
-    static MarkStart(instanceAlias, markAlias)
-    {
+    static MarkStart(instanceAlias, markAlias) {
         if (!(instanceAlias in TimeSpan.Instances))
             TimeSpan.Instances[instanceAlias] = new TimeSpan();
         let instance = TimeSpan.Instances[instanceAlias];
@@ -21,14 +19,12 @@ class TimeSpan
     }
 
 
-    constructor()
-    {
+    constructor() {
         this._start = (new Date()).getTime();
         this._marks = [];
     }
 
-    getDiffs()
-    {
+    getDiffs() {
         let diffs = [];
         for (let mark of this._marks) {
             diffs.push([ mark.alias, mark.timeEnd === null ? null : 
@@ -38,8 +34,7 @@ class TimeSpan
         return diffs;
     }
 
-    markStart(markAlias)
-    {
+    markStart(markAlias) {
         this._marks.push({
             alias: markAlias,
             timeStart: (new Date()).getTime(),
@@ -55,14 +50,12 @@ TimeSpan.Instances = {};
 class TimeSpan_Mark
 {
     
-    constructor(instance, index)
-    {
+    constructor(instance, index) {
         this._instance = instance;
         this._index = index;
     }
 
-    end()
-    {
+    end() {
         this._instance._marks[this._index].timeEnd = (new Date()).getTime();
     }
 

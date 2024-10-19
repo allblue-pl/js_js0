@@ -6,8 +6,7 @@ const js0 = require('.');
 class PAnimal
 { static get Property() { return 'pAnimal'; }
 
-    constructor()
-    {
+    constructor() {
         this.name = 'Not named yet';
     }
 
@@ -16,8 +15,7 @@ class PAnimal
 class PDog
 { static get Property() { return 'pDog'; }
 
-    constructor(main, breed)
-    {
+    constructor(main, breed) {
         js0.argsE(arguments, js0.Prop(PAnimal), [ 'string', js0.NotNull ]);
 
         this.main = main;
@@ -29,8 +27,7 @@ class PDog
 class PCat
 { static get Property() { return 'pCat'; }
 
-    constructor(main, fur_color)
-    {
+    constructor(main, fur_color) {
         js0.argsE(arguments, js0.Prop(PAnimal), [ 'string', js0.NotNull ]);
 
         this.main = main;
@@ -43,8 +40,7 @@ class PCat
 class Spock
 {
 
-    constructor()
-    {
+    constructor() {
         js0.prop(this, PAnimal);
         js0.prop(this, PDog, [ this, 'westie' ]);
 
@@ -57,8 +53,7 @@ class Spock
 class Puss
 {
 
-    constructor()
-    {
+    constructor() {
         js0.prop(this, PAnimal);
         js0.prop(this, PCat, [ this, 'black as night' ]);
     }

@@ -6,8 +6,7 @@ const js0 = require('../.');
 class Class1
 {
 
-    f1(a, b, c = null)
-    { 
+    f1(a, b, c = null) { 
         js0.args(arguments, 'string', 'number', [ 'object', js0.Default ]);
         let rtn = js0.rtn('number');
 
@@ -17,8 +16,7 @@ class Class1
         return rtn(b);
     }
 
-    f2(a, b)
-    { 
+    f2(a, b) { 
         js0.args(arguments, 'number', 'number');        
         let rtn = js0.rtn('number');
 

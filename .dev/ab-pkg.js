@@ -4,8 +4,7 @@ const abPackage = require('ab-package');
 const abPackage_AllBlue = require('ab-package_allblue');
 
 
-abPackage.exec([
-    {
+abPackage.exec([ {
         '_exts': [ 'npm', 'bower' ],
     },
     abPackage_AllBlue({
