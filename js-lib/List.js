@@ -71,6 +71,11 @@ class List
 
     }
 
+    clear() {
+        this._keys = [];
+        this._values = [];
+    }
+
     delete(key) {
         let index = this._getIndexE(key);
         this.deleteAt(index);
