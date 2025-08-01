@@ -61,12 +61,12 @@ class js0_Class
     copyArray(arr) {
         this.args(arguments, Array);
 
-        let valueTypes = [
-            'undefined',
-            'boolean',
-            'number',
-            'string',
-        ];
+        // let valueTypes = [
+        //     'undefined',
+        //     'boolean',
+        //     'number',
+        //     'string',
+        // ];
 
         let arr_New = new Array();
         for (let val of arr) {
@@ -530,7 +530,8 @@ class js0_Class
             } else if (this.Types_Extended.has(valueType)) {
                 switch(valueType) {
                     case 'bool':
-                        result = typeofValueType === 'boolean';
+                        result = typeofValue === 'boolean';
+                        break;
                     case 'int':
                         result = Number.isInteger(value);
                         break;
