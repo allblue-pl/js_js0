@@ -1,8 +1,10 @@
 'use strict';
 
 
-class js0_Class
-{
+class js0_Class {
+    get Array() {
+        return require('./Array');
+    }
 
     get List() {
         return require('./List');

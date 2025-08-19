@@ -3,7 +3,7 @@
 const js0 = require('.');
 
 
-class List
+class js0_List
 {
 
     get size() {
@@ -32,7 +32,7 @@ class List
     }
 
     [Symbol.iterator]() {
-        return new List.Iterator(this);
+        return new js0_List.Iterator(this);
     }
 
     add(...values) {
@@ -59,7 +59,7 @@ class List
 
     addAt(index, key, value) {
         if (index < 0 || index > this._values.length)
-            throw new Error(`Index \`${index}\` does not exist in \`List\`.`);
+            throw new Error(`Index \`${index}\` does not exist in \`js0_List\`.`);
 
         if (this._values.length === index) {
             this._keys.push(key);
@@ -94,14 +94,14 @@ class List
 
     getAt(index) {
         if (index < 0 || index >= this._values.length)
-            throw new Error(`Index \`${index}\` does not exist in \`List\`.`);
+            throw new Error(`Index \`${index}\` does not exist in \`js0_List\`.`);
 
         return this._values[index];
     }
 
     getKeyAt(index) {
         if (index < 0 || index >= this._values.length)
-            throw new Error(`Index \`${index}\` does not exist in \`List\`.`);
+            throw new Error(`Index \`${index}\` does not exist in \`js0_List\`.`);
 
         return this._keys[index];
     }
@@ -138,7 +138,7 @@ class List
             }
         }     
 
-        throw new Error(`Value '${value}' does not exist in List.`);
+        throw new Error(`Value '${value}' does not exist in js0_List.`);
     }
 
     set(key, value) {
@@ -151,7 +151,7 @@ class List
 
     setAt(index, key, value) {
         if (index < 0 || index > this._values.length)
-            throw new Error(`Index \`${index}\` does not exist in \`List\`.`);
+            throw new Error(`Index \`${index}\` does not exist in \`js0_List\`.`);
 
         if (index === this._values.length) {
             this._keys.push(key);
@@ -189,19 +189,19 @@ class List
     _getIndexE(key) {
         let index = this._keys.indexOf(key);
         if (index === -1)
-            throw new Error(`Key \`${key}\` does not exist in \`List\`.`);
+            throw new Error(`Key \`${key}\` does not exist in \`js0_List\`.`);
 
         return index;
     }
 
 }
-module.exports = List;
+module.exports = js0_List;
 
 
-Object.defineProperties(List, {
+Object.defineProperties(js0_List, {
 
     Iterator: { value:
-    class List_Iterator {
+    class js0_List_Iterator {
 
         constructor(list)
         {
