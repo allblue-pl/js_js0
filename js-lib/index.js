@@ -170,6 +170,50 @@ class js0_Class {
     //     return this.type(object, this.Prop(propClass));
     // }
 
+    fn(...args) {
+        if (args.length === 0)
+            throw new Error(`'js0.fn' requires at least return function argument.`);
+
+        let rtnFn = args[args.length - 1];
+        js0.typeE(rtnFn, 'function');
+        
+        let rtnType = args.length > 1 ? args[args.length - 2] : 'undefined';
+        if (rtnType === '' || rtnType === 'void')
+            rtnType = 'undefined';
+
+        if (args.length > 2) {
+            let fnArgs = [ args[0] ];
+            for (let i = 1; i < args.length - 2; i++)
+                fnArgs.push(args[i]);
+
+            js0.args.apply(this, fnArgs);
+        }
+        
+        return js0.rtn(rtnType, rtnFn());
+    }
+
+    async fnAsync(...args) {
+        if (args.length === 0)
+            throw new Error(`'js0.fn' requires at least return function argument.`);
+
+        let rtnFn = args[args.length - 1];
+        js0.typeE(rtnFn, 'function');
+        
+        let rtnType = args.length > 1 ? args[args.length - 2] : 'undefined';
+        if (rtnType === '' || rtnType === 'void')
+            rtnType = 'undefined';
+
+        if (args.length > 2) {
+            let fnArgs = [ args[0] ];
+            for (let i = 1; i < args.length - 2; i++)
+                fnArgs.push(args[i]);
+
+            js0.args.apply(this, fnArgs);
+        }
+        
+        return js0.rtn(rtnType, await rtnFn());
+    }
+
     prop(mainObject, propClass, ...propArgs) {
         this.args(arguments, 'object', 'function', js0.ExtraArgs);
 
@@ -195,16 +239,27 @@ class js0_Class {
 
     }
 
-    rtn(valueType, value = this.NotSet) {
-        if (value === this.NotSet) {
-            return (value) => {
-                this.typeE(value, valueType);
-                return value;
-            };
+    rtn(valueType, value) {
+        this.typeE(value, valueType, 'Wrong return value.');
+        return value;
+    }
+
+    rtnFn(valueType, valueFn = this.NotSet) {
+        if (typeof valueFn === 'function') {
+            let value = valueFn();
+            if (value instanceof Promise) {
+                return value
+                    .then((resultValue) => {
+                        this.typeE(resultValue, valueType);
+                        return value;
+                    });
+            }
+
+            this.typeE(value, valueType);
+            return value;
         }
 
-        this.typeE(value, valueType);
-        return value;
+        throw new Error(`'valueFn' is not a function.`);
     }
 
     type(value, valueType, errors = [], args = false) {
@@ -624,10 +679,13 @@ class js0_Class {
         throw new Error(`Unknown 'valueType': ${typeofValueType}`);
     }
 
-    typeE(value, valueType) {
+    typeE(value, valueType, extraErrorInfo = null) {
         let errors = [];
         if (this.type(value, valueType, errors))
             return;
+
+        if (extraErrorInfo !== null)
+            errors.splice(0, 0, extraErrorInfo);
 
         console.error('Error:', errors);
         console.warn(new Error());

@@ -8,7 +8,7 @@ class Class1
 
     f1(a, b, c = null) { 
         js0.args(arguments, 'string', 'number', [ 'object', js0.Default ]);
-        let rtn = js0.rtn('number');
+        let rtn = js0.rtnVal('number');
 
         console.log(a, b === null);
         b++;
@@ -18,7 +18,7 @@ class Class1
 
     f2(a, b) { 
         js0.args(arguments, 'number', 'number');        
-        let rtn = js0.rtn('number');
+        let rtn = js0.rtnVal('number');
 
         if (a > b)
             return rtn(a);
