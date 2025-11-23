@@ -311,8 +311,10 @@ class js0_Class {
         } else if (valueType === this.Object) {
             return this.type(value, 'object', errors);
         } else if (valueType === this.RawObject) {
-            if (value === null)
-                return true;
+            if (value === null) {
+                errors.push(`RawObject cannot be \`null\`.`);
+                return false;
+            }
 
             if (typeofValue === 'undefined') {
                 errors.push(`'${value}' is not an RawObject.`);
@@ -944,6 +946,4 @@ Object.defineProperties(js0_Class.prototype, {
     /* / Types */
 
 });
-
-
 module.exports = new js0_Class();
