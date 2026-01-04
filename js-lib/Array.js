@@ -3,6 +3,10 @@
 const js0 = require('.');
 
 class js0_Array {
+    get itemType() {
+        
+    }
+
     get length() {
         return this._array.length;
     }

@@ -4,12 +4,10 @@ const
     js0 = require('.')
 ;
 
-let t1 = {
-    a: [{}],
-};
+let c1 = new js0.Callable('string', 'number')
+        .set((t1) => {
+    return 5;
+    // return 5;
+});
 
-js0.typeE(t1, js0.Preset({
-    a: [ js0.ArrayItems(js0.Preset({
-        
-    })), js0.Default([]) ],
-}));
+c1.call('Hello');

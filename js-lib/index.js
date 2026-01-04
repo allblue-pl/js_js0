@@ -6,6 +6,14 @@ class js0_Class {
         return require('./Array');
     }
 
+    get AsyncCallable() {
+        return require('./AsyncCallable.js');
+    }
+
+    get Callable() {
+        return require('./Callable.js');
+    }
+
     get List() {
         return require('./List');
     }
@@ -14,9 +22,33 @@ class js0_Class {
         return require('./TimeSpan');
     }
 
-
     constructor() {
         
+    }
+
+    TArray(itemType) {
+        return this.Array_Type(itemType);
+    }
+
+    get TArgType() {
+        // Not implemented yet.
+        return null;
+    }
+
+    get TArrayItems() {
+        return this.ArrayItems_Type;
+    }
+
+    get TNull() {
+        return this.Null;
+    }
+
+    get TPreset() {
+        return this.Preset_Type;
+    }
+
+    get TRawObject() {
+        return this.RawObject;
     }
 
     args(args, ...types) {
@@ -116,6 +148,11 @@ class js0_Class {
             // }
             if (this.type(obj[prop], js0.Null)) {
                 obj_New[prop] = null;
+                continue;
+            }
+
+            if (this.type(obj[prop], 'symbol')) {
+                obj_New[prop] = obj[prop];
                 continue;
             }
 
@@ -264,7 +301,7 @@ class js0_Class {
 
     type(value, valueType, errors = [], args = false) {
         if (valueType === null) {
-            if (typeof value === 'undefined') {
+            if (args && typeof value === 'undefined') {
                 errors.push('Arg not set.');
                 return false;
             }
@@ -345,6 +382,18 @@ class js0_Class {
                 return true;
 
             return false;
+        } else if (valueType instanceof this.Array_Type) {
+            if (!this.type(value, Array)) {
+                errors.push(`Value must be an instance of 'js0.Array'. Found: ${typeofValue}.`);
+                return false;
+            }
+
+            if (valueType.itemType !== value.itemType) {
+                errors.push(`Wrong 'js0.Array' item type.`);
+                return false;
+            }
+
+            return valid;
         } else if (valueType instanceof this.ArrayItems_Type) {
             if (!this.type(value, Array)) {
                 errors.push(`Value must be an instance of Array. Found: ${typeofValue}.`);
@@ -433,10 +482,12 @@ class js0_Class {
 
             let valid = true;
 
-            for (let key in value) {
-                if (!(key in valueType.presets)) {
-                    errors.push(`Unknown key \`${key}\`.`);
-                    valid = false;
+            if (!valueType.hasExtras) {
+                for (let key in value) {
+                    if (!(key in valueType.presets)) {
+                        errors.push(`Unknown key \`${key}\`.`);
+                        valid = false;
+                    }
                 }
             }
 
@@ -452,8 +503,12 @@ class js0_Class {
                     }
                 } 
 
-                if (this.type(value[key], valueType.presets[key], newErrors))
-                    continue;
+                try {
+                    if (this.type(value[key], valueType.presets[key], newErrors))
+                        continue;
+                } catch (err) {
+                    newErrors.push(err.toString());
+                }
 
                 for (let newError of newErrors)
                     errors.push(`${key} -> ${newError}`);
@@ -713,8 +768,7 @@ Object.defineProperties(js0_Class.prototype, {
     /* Errors */
     AssertionError: { value:
     class js0_AssertionError extends Error {
-        constructor(...args)
-        {
+        constructor(...args) {
             super(...args);
         }
 
@@ -722,9 +776,7 @@ Object.defineProperties(js0_Class.prototype, {
 
     NotImplementedError: { value:
     class js0_NotImplementedError extends Error {
-
-        constructor(...args)
-        {
+        constructor(...args) {
             super(...args);
         }
 
@@ -733,9 +785,7 @@ Object.defineProperties(js0_Class.prototype, {
 
     TypeError: { value:
     class js0_TypeError extends Error {
-
-        constructor(...args)
-        {
+        constructor(...args) {
             super(...args);
 
             // let stack = this.stack;
@@ -788,8 +838,8 @@ Object.defineProperties(js0_Class.prototype, {
     NotNull: { value: Symbol('js0_NotNull'), },
     NotSet: { value: Symbol('js0_NotSet'), },
     Null: { value: Symbol('js0_Null'), },
-    Preset: { value: (presets) => {
-        return new js0.Preset_Type(presets);
+    Preset: { value: (presets, hasExtras = false) => {
+        return new js0.Preset_Type(presets, hasExtras);
     }},
     PresetArray: { value: (presets) => {
         return new js0.PresetArray_Type(presets);
@@ -806,8 +856,7 @@ Object.defineProperties(js0_Class.prototype, {
 
     And_Type: { value:
     class js0_And_Type  {
-        constructor(valueTypes)
-        {
+        constructor(valueTypes) {
             js0.args(arguments, js0.PropClass);
 
             Object.defineProperties(this, {
@@ -817,11 +866,16 @@ Object.defineProperties(js0_Class.prototype, {
 
     }},
 
+    Array_Type: { value:
+    class js0_Array_Type {
+        constructor(itemType) {
+            this.itemType = itemType;
+        }
+    }},
+
     ArrayItems_Type: { value:
     class js0_ArrayItems_Type {
-
-        constructor(itemType)
-        {
+        constructor(itemType) {
             this.itemType = itemType;
         }
 
@@ -829,9 +883,7 @@ Object.defineProperties(js0_Class.prototype, {
 
     Default_Type: { value:
     class js0_Default_Type {
-
-        constructor(defaultValue = undefined)
-        {
+        constructor(defaultValue = undefined) {
             this.defaultValue = defaultValue;
         }
 
@@ -854,9 +906,7 @@ Object.defineProperties(js0_Class.prototype, {
 
     Iterable_Type: { value:
     class js0_Iterable_Type {
-
-        constructor(itemType)
-        {
+        constructor(itemType) {
             this.itemType = itemType;
         }
 
@@ -864,9 +914,7 @@ Object.defineProperties(js0_Class.prototype, {
 
     ObjectItems_Type: { value:
     class js0_ObjectItems_Type {
-
-        constructor(itemType)
-        {
+        constructor(itemType) {
             this.itemType = itemType;
         }
 
@@ -888,11 +936,11 @@ Object.defineProperties(js0_Class.prototype, {
     Preset_Type: { value:
     class js0_Preset_Type {
         
-        constructor(presets)
-        {
-            js0.args(arguments, js0.RawObject);
+        constructor(presets, hasExtras = false) {
+            js0.args(arguments, js0.RawObject, [ 'boolean', js0.Default ]);
 
             this.presets = presets;
+            this.hasExtras = hasExtras;
             // this.defaultValue = defaultValue;
         }
 
@@ -901,8 +949,7 @@ Object.defineProperties(js0_Class.prototype, {
     PresetArray_Type: { value:
     class js0_PresetArray_Type {
         
-        constructor(presets)
-        {
+        constructor(presets) {
             js0.args(arguments, Array);
 
             this.presets = presets;
@@ -912,9 +959,7 @@ Object.defineProperties(js0_Class.prototype, {
 
     Prop_Type: { value:
     class js0_Prop_Type {
-
-        constructor(propClass)
-        {
+        constructor(propClass) {
             js0.args(arguments, js0.PropClass);
 
             Object.defineProperties(this, {
