@@ -655,6 +655,9 @@ class js0_Class {
                     case 'nan':
                         result = Number.isNaN(value);
                         break;
+                    case 'void':
+                        result = typeofValue === 'undefined';
+                        break;
                 }
             } else {
                 errors.push(`Unknown type '${valueType}'.`);
@@ -816,7 +819,8 @@ Object.defineProperties(js0_Class.prototype, {
         'bool',
         'finite',
         'int',
-        'nan'
+        'nan',
+        'void'
     ])},
 
     /* Types Special */
