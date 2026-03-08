@@ -23,7 +23,14 @@ class js0_Class {
     }
 
     constructor() {
-        
+        this._proxyHandler = {
+            get(target, prop, receiver) {
+                if (!(prop in target))
+                    throw new Error(`Property '${prop}' does not exist in object of class '${target.constructor.name}'.`)
+
+                return target[prop];
+            }
+        }
     }
 
     TArray(itemType) {
@@ -49,6 +56,78 @@ class js0_Class {
 
     get TRawObject() {
         return this.RawObject;
+    }
+
+    Create(classObject) {
+        js0.args(arguments, 'object');
+
+        return new Proxy(classObject, this._proxyHandler);
+    }
+
+    $construct(...args) {
+        if (args.length === 0)
+            throw new Error(`'js0.fn' requires at least return function argument.`);
+
+        let rtnFn = args[args.length - 1];
+        js0.typeE(rtnFn, 'function');
+
+        let rtnType = args.length > 1 ? args[args.length - 2] : 'undefined';
+        if (rtnType === '' || rtnType === 'void')
+            rtnType = 'undefined';
+
+        if (args.length > 2) {
+            let fnArgs = [ args[0] ];
+            for (let i = 1; i < args.length - 2; i++)
+                fnArgs.push(args[i]);
+
+            js0.args.apply(this, fnArgs);
+        }
+
+        return js0.rtn(rtnType, rtnFn());
+    }
+
+    $fn(...args) {
+        if (args.length === 0)
+            throw new Error(`'js0.fn' requires at least return function argument.`);
+
+        let rtnFn = args[args.length - 1];
+        js0.typeE(rtnFn, 'function');
+        
+        let rtnType = args.length > 1 ? args[args.length - 2] : 'undefined';
+        if (rtnType === '' || rtnType === 'void')
+            rtnType = 'undefined';
+
+        if (args.length > 2) {
+            let fnArgs = [ args[0] ];
+            for (let i = 1; i < args.length - 2; i++)
+                fnArgs.push(args[i]);
+
+            js0.args.apply(this, fnArgs);
+        }
+        
+        return js0.rtn(rtnType, rtnFn());
+    }
+
+    async $fnAsync(...args) {
+        if (args.length === 0)
+            throw new Error(`'js0.fn' requires at least return function argument.`);
+
+        let rtnFn = args[args.length - 1];
+        js0.typeE(rtnFn, 'function');
+        
+        let rtnType = args.length > 1 ? args[args.length - 2] : 'undefined';
+        if (rtnType === '' || rtnType === 'void')
+            rtnType = 'undefined';
+
+        if (args.length > 2) {
+            let fnArgs = [ args[0] ];
+            for (let i = 1; i < args.length - 2; i++)
+                fnArgs.push(args[i]);
+
+            js0.args.apply(this, fnArgs);
+        }
+        
+        return js0.rtn(rtnType, await rtnFn());
     }
 
     args(args, ...types) {

@@ -3,8 +3,8 @@
 const js0 = require('.');
 
 
-class PAnimal
-{ static get Property() { return 'pAnimal'; }
+class PAnimal extends js0.Property
+{ static get Property() { 'pAnimal' }
 
     constructor() {
         this.name = 'Not named yet';

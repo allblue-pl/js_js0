@@ -1,13 +1,22 @@
 'use strict';
 
 const
-    js0 = require('.')
+    js0 = require('.'),
+    js0Class = require('./js-lib/js0Class')
 ;
 
-let c1 = new js0.Callable('string', 'number')
-        .set((t1) => {
-    return 5;
-    // return 5;
-});
+class A extends js0Class {
+    constructor() { return js0.fn(arguments,
+    '', (self) => {
+        self.def('string');
+        self.b = 5;
+    })}
 
-c1.call('Hello');
+    f(arg1) { return js0.fn(arguments,
+    'int',
+    '', (self) => {
+        
+    })}
+}
+
+let a = new A();
