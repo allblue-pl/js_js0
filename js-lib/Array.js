@@ -1,8 +1,6 @@
-'use strict';
+import js0 from "./index";
 
-const js0 = require('.');
-
-class js0_Array {
+export default class js0_Array {
     get itemType() {
         
     }
@@ -37,4 +35,3 @@ class js0_Array {
         this._array.push(item);
     }
 }
-module.exports = js0_Array;

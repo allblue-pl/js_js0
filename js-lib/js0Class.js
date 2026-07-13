@@ -1,5 +1,4 @@
-
-class js0Class {
+export default class js0Class {
     constructor() {
         this._proxyHandler = {
             get(target, prop, receiver) {
@@ -20,4 +19,3 @@ class js0Class {
         }
     }
 }
-module.exports = js0Class;

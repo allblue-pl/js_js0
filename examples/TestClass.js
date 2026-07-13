@@ -1,16 +1,15 @@
-'use strict';
-
 import js0 from "js0";
 
 export default class TestClass {
-    /**@type TestClass*/ get $() { return this.$; }
-    constructor() { return js0.$construct(arguments,
+    /**@type TestClass*/ get $() { return js0.Proxy(this); }
+
+    constructor() { return js0.fn(arguments,
     '', () => {
         
     })}
 
-    hop() { return js0Class.$fn(arguments,
-    '', () => {
+    hop() { return js0.fn(arguments,
+    '', ($) => {
         
     })}
 }

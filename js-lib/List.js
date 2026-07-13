@@ -1,11 +1,6 @@
-'use strict';
+import js0 from "./index.js";
 
-const js0 = require('.');
-
-
-class js0_List
-{
-
+export default class js0_List {
     get size() {
         return this._values.length;
     }
@@ -195,7 +190,6 @@ class js0_List
     }
 
 }
-module.exports = js0_List;
 
 
 Object.defineProperties(js0_List, {

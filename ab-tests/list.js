@@ -1,10 +1,8 @@
-'use strict';
-
 const abTests = require('ab-tests');
 const js0 = require('../.');
 
 
-module.exports = [
+export default [;
 
 abTests.unit('List', (t) => {
     let l = new js0.List();

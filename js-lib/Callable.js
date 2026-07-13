@@ -1,10 +1,6 @@
-'use strict';
+import js0 from "./index";
 
-const
-    js0 = require('./index.js')
-;
-
-class Callable {
+export default class Callable {
     constructor(...args) { return js0.fn(arguments,
     js0.ExtraArgs,
     '', () => {
@@ -39,4 +35,3 @@ class Callable {
         return this;
     })}
 }
-module.exports = Callable;

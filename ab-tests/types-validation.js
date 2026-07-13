@@ -1,10 +1,8 @@
-'use strict';
-
 const abTests = require('ab-tests');
 const js0 = require('../.');
 
 
-module.exports = abTests
+export default abTests;
 
 .unit('Basic Types', (t) => {
     t.eq('undefined, true', () => js0.var('undefined', undefined) );

@@ -1,22 +1,19 @@
-'use strict';
-
-const
-    js0 = require('.'),
-    js0Class = require('./js-lib/js0Class')
-;
+import js0 from "..js";
+import js0Class from "./js-lib/js0Class.js";
 
 class A extends js0Class {
-    constructor() { return js0.fn(arguments,
-    '', (self) => {
-        self.def('string');
-        self.b = 5;
-    })}
+    #test;
 
-    f(arg1) { return js0.fn(arguments,
-    'int',
-    '', (self) => {
-        
-    })}
+    constructor() { 
+        console.log(this.#test);
+    }
+
+    fn() {
+
+    }
 }
 
 let a = new A();
+
+A.sth();
+

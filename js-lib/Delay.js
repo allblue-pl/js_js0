@@ -1,12 +1,6 @@
-'use strict';
+import js0 from "./index";
 
-const
-    js0 = require('.')
-;
-
-class Delay
-{
-
+export default class Delay {
     constructor() {
         this._delays = [];
     }
@@ -58,4 +52,3 @@ class Delay
     }
 
 }
-module.exports = Delay;

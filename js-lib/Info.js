@@ -1,9 +1,7 @@
-// 'use strict';
-
-// let js0 = require('.');
+// import js0 from "js0";
 
 
-// class Info
+// export default class Info
 // {
 
 //     construct(class_object)
@@ -28,4 +26,3 @@
 //     }
 
 // }
-// module.exports = Info;

@@ -1,8 +1,4 @@
-'use strict';
-
-class TimeSpan
-{
-
+export default class TimeSpan {
     static GetInstance(instanceAlias) {
         if (!(instanceAlias in TimeSpan.Instances))
             throw new Error(`TimeSpan instance '${instanceAlias}' does not exist.`);
@@ -47,9 +43,7 @@ class TimeSpan
 }
 TimeSpan.Instances = {};
 
-class TimeSpan_Mark
-{
-    
+class TimeSpan_Mark {
     constructor(instance, index) {
         this._instance = instance;
         this._index = index;
@@ -58,7 +52,4 @@ class TimeSpan_Mark
     end() {
         this._instance._marks[this._index].timeEnd = (new Date()).getTime();
     }
-
 }
-
-module.exports = TimeSpan;

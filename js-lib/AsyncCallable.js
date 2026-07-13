@@ -1,5 +1,3 @@
-'use strict';
-
 import js0 from "./index.js";
 
 export default class AsyncCallable {

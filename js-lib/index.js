@@ -1,25 +1,28 @@
-'use strict';
+import TS0Array from "./Array";
+import AsyncCallable from "./AsyncCallable";
+import Callable from "./Callable";
+import TS0List from "./List";
+import TimeSpan from "./TimeSpan";
 
-
-class js0_Class {
+export class js0_Class {
     get Array() {
-        return require('./Array');
+        return TS0Array;
     }
 
     get AsyncCallable() {
-        return require('./AsyncCallable.js');
+        return AsyncCallable.js;
     }
 
     get Callable() {
-        return require('./Callable.js');
+        return Callable.js;
     }
 
     get List() {
-        return require('./List');
+        return TS0List;
     }
 
     get TimeSpan() {
-        return require('./TimeSpan');
+        return TimeSpan;
     }
 
     constructor() {
@@ -62,72 +65,6 @@ class js0_Class {
         js0.args(arguments, 'object');
 
         return new Proxy(classObject, this._proxyHandler);
-    }
-
-    $construct(...args) {
-        if (args.length === 0)
-            throw new Error(`'js0.fn' requires at least return function argument.`);
-
-        let rtnFn = args[args.length - 1];
-        js0.typeE(rtnFn, 'function');
-
-        let rtnType = args.length > 1 ? args[args.length - 2] : 'undefined';
-        if (rtnType === '' || rtnType === 'void')
-            rtnType = 'undefined';
-
-        if (args.length > 2) {
-            let fnArgs = [ args[0] ];
-            for (let i = 1; i < args.length - 2; i++)
-                fnArgs.push(args[i]);
-
-            js0.args.apply(this, fnArgs);
-        }
-
-        return js0.rtn(rtnType, rtnFn());
-    }
-
-    $fn(...args) {
-        if (args.length === 0)
-            throw new Error(`'js0.fn' requires at least return function argument.`);
-
-        let rtnFn = args[args.length - 1];
-        js0.typeE(rtnFn, 'function');
-        
-        let rtnType = args.length > 1 ? args[args.length - 2] : 'undefined';
-        if (rtnType === '' || rtnType === 'void')
-            rtnType = 'undefined';
-
-        if (args.length > 2) {
-            let fnArgs = [ args[0] ];
-            for (let i = 1; i < args.length - 2; i++)
-                fnArgs.push(args[i]);
-
-            js0.args.apply(this, fnArgs);
-        }
-        
-        return js0.rtn(rtnType, rtnFn());
-    }
-
-    async $fnAsync(...args) {
-        if (args.length === 0)
-            throw new Error(`'js0.fn' requires at least return function argument.`);
-
-        let rtnFn = args[args.length - 1];
-        js0.typeE(rtnFn, 'function');
-        
-        let rtnType = args.length > 1 ? args[args.length - 2] : 'undefined';
-        if (rtnType === '' || rtnType === 'void')
-            rtnType = 'undefined';
-
-        if (args.length > 2) {
-            let fnArgs = [ args[0] ];
-            for (let i = 1; i < args.length - 2; i++)
-                fnArgs.push(args[i]);
-
-            js0.args.apply(this, fnArgs);
-        }
-        
-        return js0.rtn(rtnType, await rtnFn());
     }
 
     args(args, ...types) {
@@ -843,7 +780,8 @@ class js0_Class {
     }
 
 }
-const js0 = js0_Class.prototype;
+const js0 = new js0_Class();
+export default js0;
 
 Object.defineProperties(js0_Class.prototype, {
 
@@ -1074,4 +1012,3 @@ Object.defineProperties(js0_Class.prototype, {
     /* / Types */
 
 });
-module.exports = new js0_Class();
