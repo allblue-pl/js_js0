@@ -1,4 +1,4 @@
-import js0 from "./index";
+import js0 from "./index.js";
 
 export default class js0_Array {
     get itemType() {

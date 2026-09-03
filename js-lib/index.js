@@ -1,8 +1,8 @@
-import TS0Array from "./Array";
-import AsyncCallable from "./AsyncCallable";
-import Callable from "./Callable";
-import TS0List from "./List";
-import TimeSpan from "./TimeSpan";
+import TS0Array from "./Array.js";
+import AsyncCallable from "./AsyncCallable.js";
+import Callable from "./Callable.js";
+import TS0List from "./List.js";
+import TimeSpan from "./TimeSpan.js";
 
 export class js0_Class {
     get Array() {

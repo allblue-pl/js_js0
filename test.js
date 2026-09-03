@@ -1,19 +1,9 @@
-import js0 from "..js";
-import js0Class from "./js-lib/js0Class.js";
+import js0 from "./index.js";
 
-class A extends js0Class {
-    #test;
+let a = "test";
 
-    constructor() { 
-        console.log(this.#test);
-    }
+let errors = [];
+js0.type(a, [ js0.Null ], errors);
 
-    fn() {
-
-    }
-}
-
-let a = new A();
-
-A.sth();
+console.log(errors);
 
